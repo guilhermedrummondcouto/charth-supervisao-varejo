@@ -172,7 +172,7 @@ def apply_brand_css() -> None:
             font-size: 12px;
             letter-spacing: .05em;
             font-weight: 750;
-            margin-top: 6px;
+            margin-top: 8px;
             margin-bottom: 8px;
         }
 
@@ -180,79 +180,24 @@ def apply_brand_css() -> None:
             background: #FFFDFC;
             border: 1px solid rgba(109,110,113,.14);
             border-radius: 18px;
-            padding: 14px 16px 10px 16px;
-            margin: 0 0 12px 0;
+            padding: 16px;
+            margin: 0 0 14px 0;
+            box-shadow: 0 8px 22px rgba(31,31,31,.025);
         }
 
-        /* =========================================================
-           SLIDER CHARTH
-           IMPORTANTE:
-           A cor coral/vermelha vinha do primaryColor do Streamlit.
-           O arquivo .streamlit/config.toml precisa usar primaryColor preto.
-           Aqui só refinamos a bolinha e reforçamos contraste.
-           ========================================================= */
-
-        div[data-testid="stSlider"] {
-            --slider-active: var(--charth-black);
-            --slider-base: var(--charth-silver-soft);
-            --slider-handle: var(--charth-rose);
+        .charth-score-helper {
+            color: var(--charth-gray);
+            font-size: 11px;
+            margin-top: -4px;
+            margin-bottom: 8px;
+            letter-spacing: .02em;
         }
 
-        div[data-testid="stSlider"] label,
-        div[data-testid="stSlider"] p,
-        div[data-testid="stSlider"] span {
-            color: var(--charth-black) !important;
-            -webkit-text-fill-color: var(--charth-black) !important;
-        }
-
-        /* Esconde qualquer resíduo do vermelho padrão via accent-color */
-        div[data-testid="stSlider"] input,
-        div[data-testid="stSlider"] * {
+        /* Controles sem slider: nenhum vermelho/coral */
+        * {
             accent-color: var(--charth-black) !important;
         }
 
-        /* Track base e track ativo */
-        div[data-testid="stSlider"] [data-baseweb="slider"] div {
-            border-color: var(--charth-silver-line) !important;
-        }
-
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div {
-            background-color: var(--charth-silver-soft) !important;
-        }
-
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div {
-            background-color: var(--charth-black) !important;
-        }
-
-        /* Handle/bolinha rosê */
-        div[data-testid="stSlider"] div[role="slider"] {
-            background: var(--charth-rose) !important;
-            background-color: var(--charth-rose) !important;
-            border: 3px solid #FFFFFF !important;
-            box-shadow: 0 0 0 2px rgba(31,31,31,.22), 0 5px 14px rgba(31,31,31,.14) !important;
-            outline: none !important;
-        }
-
-        div[data-testid="stSlider"] div[role="slider"]:hover,
-        div[data-testid="stSlider"] div[role="slider"]:focus {
-            background: var(--charth-rose-deep) !important;
-            background-color: var(--charth-rose-deep) !important;
-            border-color: #FFFFFF !important;
-            box-shadow: 0 0 0 3px rgba(201,160,160,.36), 0 8px 18px rgba(31,31,31,.16) !important;
-        }
-
-        /* Número e ticks */
-        div[data-testid="stSlider"] [data-testid="stThumbValue"],
-        div[data-testid="stSlider"] [data-testid="stSliderThumbValue"],
-        div[data-testid="stSlider"] [data-testid="stTickBar"],
-        div[data-testid="stSlider"] [data-testid="stTickBarMin"],
-        div[data-testid="stSlider"] [data-testid="stTickBarMax"],
-        div[data-testid="stSlider"] [data-testid="stTickBar"] * {
-            color: var(--charth-black) !important;
-            -webkit-text-fill-color: var(--charth-black) !important;
-        }
-
-        /* Labels, inputs e selects */
         div[data-testid="stWidgetLabel"] p,
         label,
         .stTextInput label,
@@ -270,11 +215,29 @@ def apply_brand_css() -> None:
 
         input,
         textarea,
-        [data-baseweb="select"] {
+        [data-baseweb="select"],
+        [data-baseweb="input"] {
             color: var(--charth-black) !important;
             -webkit-text-fill-color: var(--charth-black) !important;
             background: #F7F4F2 !important;
             border-radius: 14px !important;
+            border-color: var(--charth-silver-line) !important;
+        }
+
+        [data-baseweb="select"] > div {
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+            background: #F7F4F2 !important;
+            border-color: var(--charth-silver-line) !important;
+        }
+
+        [data-baseweb="select"]:focus-within,
+        [data-baseweb="input"]:focus-within,
+        input:focus,
+        textarea:focus {
+            border-color: var(--charth-black) !important;
+            box-shadow: 0 0 0 2px rgba(31,31,31,.10) !important;
+            outline: none !important;
         }
 
         input::placeholder,
@@ -282,6 +245,18 @@ def apply_brand_css() -> None:
             color: #7E7E7E !important;
             -webkit-text-fill-color: #7E7E7E !important;
             opacity: 1 !important;
+        }
+
+        /* Radio binário em preto/rosê */
+        div[role="radiogroup"] label,
+        div[role="radiogroup"] span,
+        div[role="radiogroup"] p {
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+        }
+
+        div[role="radiogroup"] [data-baseweb="radio"] div {
+            border-color: var(--charth-black) !important;
         }
 
         /* Botões */
