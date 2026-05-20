@@ -39,14 +39,7 @@ chmod +x install_mac_linux.sh run_mac_linux.sh
 
 ## 3. Logins de teste
 
-| Perfil | Usuário | Senha |
-|---|---|---|
-| Admin | admin | charth123 |
-| Supervisora | supervisora | charth123 |
-| Gestora Cidade Jardim | gestora_cidade | charth123 |
-| Gestora Vila da Serra | gestora_vila | charth123 |
-| Gestora Diamond | gestora_diamond | charth123 |
-| Gestora Barigui | gestora_barigui | charth123 |
+
 
 Troque as senhas antes de publicar online.
 
