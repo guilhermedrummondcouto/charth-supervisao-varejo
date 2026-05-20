@@ -431,6 +431,20 @@ def export_flattened_evaluations(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def delete_evaluation(evaluation_id: int) -> None:
+    """Remove uma avaliação e seus planos de ação vinculados.
+
+    Usado apenas pelo perfil Admin. Mantém a operação segura porque apaga
+    primeiro os planos filhos e depois a avaliação principal.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    _exec(cur, "DELETE FROM action_plans WHERE evaluation_id = ?", (int(evaluation_id),))
+    _exec(cur, "DELETE FROM evaluations WHERE id = ?", (int(evaluation_id),))
+    conn.commit()
+    conn.close()
+
+
 def list_users_df() -> pd.DataFrame:
     conn = get_conn()
     df = pd.read_sql_query("SELECT username, role, store, name, active, created_at FROM users ORDER BY role, username", conn)
