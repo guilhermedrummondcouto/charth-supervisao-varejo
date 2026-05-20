@@ -4,7 +4,7 @@ import streamlit as st
 from .calculations import compute_bonus, compute_section_scores, compute_weighted_score, status_from_weighted
 from .config import DNA_OPTIONS, FORM_SECTIONS, STORES, STRATEGIC_FIELDS
 from .db import insert_evaluation, save_uploaded_file
-from .ui import header, score_badge
+from .ui import header
 
 
 def _section_header(number: int, title: str, description: str = "Avaliação oficial de performance da loja") -> None:
@@ -23,32 +23,41 @@ def _section_header(number: int, title: str, description: str = "Avaliação ofi
 def score_input(question: dict, section_name: str) -> float:
     key = f"score_{section_name}_{question['key']}"
     qtype = question["type"]
+
     st.markdown('<div class="charth-score-wrap">', unsafe_allow_html=True)
+
     if qtype == "score":
-        st.markdown("<div class='charth-score-helper'>Selecione uma nota de 1 a 10</div>", unsafe_allow_html=True)
-        val = st.selectbox(
+        st.markdown("<div class='charth-score-helper'>Escala de 1 a 10</div>", unsafe_allow_html=True)
+        val = st.radio(
             question["label"],
             options=list(range(1, 11)),
             index=9,
+            horizontal=True,
             key=key,
-            format_func=lambda x: f"{x:02d}",
+            label_visibility="visible",
         )
-        score_badge(float(val))
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
         return float(val)
+
     if qtype == "binary":
+        st.markdown("<div class='charth-score-helper'>Resposta binária: Sim = 10 · Não = 0</div>", unsafe_allow_html=True)
         val = st.radio(question["label"], options=["Sim", "Não"], horizontal=True, key=key)
-        score = 10.0 if val == "Sim" else 0.0
-        score_badge(score)
-        st.markdown('</div>', unsafe_allow_html=True)
-        return score
+        st.markdown("</div>", unsafe_allow_html=True)
+        return 10.0 if val == "Sim" else 0.0
+
     if qtype == "binary_inverse":
-        val = st.radio(question["label"], options=["Não", "Sim"], horizontal=True, key=key, help="Não = 10, Sim = 0")
-        score = 10.0 if val == "Não" else 0.0
-        score_badge(score)
-        st.markdown('</div>', unsafe_allow_html=True)
-        return score
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("<div class='charth-score-helper'>Resposta binária: Não = 10 · Sim = 0</div>", unsafe_allow_html=True)
+        val = st.radio(
+            question["label"],
+            options=["Não", "Sim"],
+            horizontal=True,
+            key=key,
+            help="Não = 10, Sim = 0",
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+        return 10.0 if val == "Não" else 0.0
+
+    st.markdown("</div>", unsafe_allow_html=True)
     raise ValueError(f"Tipo desconhecido: {qtype}")
 
 
