@@ -16,10 +16,11 @@ def apply_brand_css() -> None:
 
         :root {
             --charth-black: #1F1F1F;
-            --charth-off-black: #111111;
+            --charth-ink: #111111;
             --charth-gray: #6D6E71;
             --charth-silver: #B8B8B8;
-            --charth-silver-soft: #E6E2DF;
+            --charth-silver-soft: #E7E2DF;
+            --charth-silver-line: #CFC8C4;
             --charth-rose: #C9A0A0;
             --charth-rose-deep: #B98585;
             --charth-rose-soft: #F3E8E6;
@@ -27,7 +28,7 @@ def apply_brand_css() -> None:
             --charth-card: #FFFDFC;
             --charth-gold: #C8A24A;
             --charth-bronze: #A66A3F;
-            --charth-critical: #9E3F45;
+            --charth-critical: #7F3438;
             --charth-alert: #B8875D;
             --charth-good: #6D6E71;
             --charth-great: #C9A0A0;
@@ -49,13 +50,13 @@ def apply_brand_css() -> None:
 
         .stApp {
             background:
-                radial-gradient(circle at top left, rgba(201,160,160,.15) 0%, rgba(248,246,243,1) 34%, rgba(244,239,236,1) 100%);
+                radial-gradient(circle at top left, rgba(201,160,160,.11) 0%, rgba(248,246,243,1) 34%, rgba(244,239,236,1) 100%);
             color: var(--charth-black);
         }
 
         h1, h2, h3 {
-            letter-spacing: .01em;
             color: var(--charth-black);
+            letter-spacing: .01em;
             font-weight: 650;
         }
 
@@ -64,20 +65,20 @@ def apply_brand_css() -> None:
         h3 { font-size: 1.12rem !important; }
 
         .brand-title {
-            letter-spacing: .52em;
-            font-size: 40px;
-            text-align: center;
             color: var(--charth-black);
-            margin-bottom: 2px;
+            font-size: 40px;
             font-weight: 300;
+            letter-spacing: .52em;
+            text-align: center;
+            margin-bottom: 2px;
         }
 
         .brand-subtitle {
-            letter-spacing: .25em;
-            text-transform: uppercase;
-            text-align: center;
             color: var(--charth-gray);
             font-size: 12px;
+            letter-spacing: .25em;
+            text-align: center;
+            text-transform: uppercase;
             margin-bottom: 28px;
         }
 
@@ -85,11 +86,11 @@ def apply_brand_css() -> None:
         .login-card,
         .metric-card,
         .charth-premium-card {
-            background: rgba(255,253,252,.94);
-            border: 1px solid rgba(201,160,160,.32);
+            background: rgba(255,253,252,.96);
+            border: 1px solid rgba(201,160,160,.24);
             border-radius: 24px;
             padding: 24px;
-            box-shadow: 0 18px 45px rgba(31,31,31,.055);
+            box-shadow: 0 18px 45px rgba(31,31,31,.045);
             margin-bottom: 18px;
         }
 
@@ -110,31 +111,31 @@ def apply_brand_css() -> None:
 
         .charth-form-hero {
             background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
-            border: 1px solid rgba(201,160,160,.34);
+            border: 1px solid rgba(201,160,160,.28);
             border-radius: 28px;
             padding: 26px 28px;
             margin: 12px 0 22px 0;
-            box-shadow: 0 18px 42px rgba(31,31,31,.055);
+            box-shadow: 0 18px 42px rgba(31,31,31,.045);
         }
 
         .charth-form-hero-title {
+            color: var(--charth-black);
             font-size: 24px;
             font-weight: 800;
             letter-spacing: .02em;
-            color: var(--charth-black);
         }
 
         .charth-form-hero-subtitle {
-            font-size: 14px;
             color: var(--charth-gray);
+            font-size: 14px;
             line-height: 1.55;
             margin-top: 6px;
         }
 
         .charth-section-header {
             background: #FFFDFC;
-            border-top: 1px solid rgba(201,160,160,.35);
-            border-bottom: 1px solid rgba(201,160,160,.22);
+            border-top: 1px solid rgba(201,160,160,.32);
+            border-bottom: 1px solid rgba(201,160,160,.18);
             padding: 16px 4px 14px 4px;
             margin-top: 18px;
             margin-bottom: 14px;
@@ -185,12 +186,16 @@ def apply_brand_css() -> None:
 
         /* =========================================================
            SLIDER CHARTH
-           Track preto/prata + bolinha rosê.
-           Obs.: o Streamlit/BaseWeb muda classes internas às vezes;
-           por isso usamos vários seletores complementares.
+           Regra: NENHUM vermelho/coral.
+           Base em prata suave, trilho ativo preto, bolinha rosê.
            ========================================================= */
 
-        /* Label e número do slider */
+        div[data-testid="stSlider"] {
+            --slider-track: var(--charth-silver-soft);
+            --slider-active: var(--charth-black);
+            --slider-handle: var(--charth-rose);
+        }
+
         div[data-testid="stSlider"] label,
         div[data-testid="stSlider"] p,
         div[data-testid="stSlider"] span {
@@ -198,55 +203,88 @@ def apply_brand_css() -> None:
             -webkit-text-fill-color: var(--charth-black) !important;
         }
 
-        /* Base geral do slider */
         div[data-testid="stSlider"] [data-baseweb="slider"] {
-            color: var(--charth-rose) !important;
+            color: var(--charth-black) !important;
         }
 
-        /* Trilho total em prata suave */
+        /* Fundo do trilho */
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div,
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div,
+        div[data-testid="stSlider"] [data-baseweb="slider"] [data-testid="stSliderThumbValue"] {
+            border-color: var(--charth-silver-line) !important;
+        }
+
+        /* Remove qualquer vermelho/coral aplicado por tema inline */
+        div[data-testid="stSlider"] [style*="255, 75, 75"],
+        div[data-testid="stSlider"] [style*="255,75,75"],
+        div[data-testid="stSlider"] [style*="#ff4b4b"],
+        div[data-testid="stSlider"] [style*="#FF4B4B"],
+        div[data-testid="stSlider"] [style*="rgb(255"],
+        div[data-testid="stSlider"] [style*="coral"] {
+            background: var(--charth-black) !important;
+            background-color: var(--charth-black) !important;
+            color: var(--charth-black) !important;
+            border-color: var(--charth-black) !important;
+        }
+
+        /* Trilho geral: prata */
         div[data-testid="stSlider"] [data-baseweb="slider"] > div:first-child {
             background: var(--charth-silver-soft) !important;
+            box-shadow: none !important;
         }
 
-        /* Linha ativa do slider em preto */
+        /* Parte ativa: preto */
         div[data-testid="stSlider"] [data-baseweb="slider"] > div:first-child > div {
             background: var(--charth-black) !important;
+            box-shadow: none !important;
         }
 
-        /* Compatibilidade com outras estruturas do BaseWeb */
-        div[data-testid="stSlider"] [data-baseweb="slider"] div[style*="background"] {
+        /* Cobertura extra para versões diferentes do BaseWeb */
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div:nth-child(1) > div:nth-child(1),
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div:nth-child(1) > div:nth-child(2),
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div:nth-child(2),
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div:nth-child(3) {
             background-color: var(--charth-black) !important;
         }
 
-        /* Bolinha/handle rosê */
+        /* Bolinha */
         div[data-testid="stSlider"] div[role="slider"] {
+            background: var(--charth-rose) !important;
             background-color: var(--charth-rose) !important;
             border: 3px solid #FFFFFF !important;
-            box-shadow: 0 0 0 2px rgba(31,31,31,.20), 0 6px 18px rgba(201,160,160,.45) !important;
+            box-shadow: 0 0 0 2px rgba(31,31,31,.20), 0 5px 14px rgba(31,31,31,.14) !important;
             outline: none !important;
         }
 
         div[data-testid="stSlider"] div[role="slider"]:hover,
-        div[data-testid="stSlider"] div[role="slider"]:focus {
-            background-color: var(--charth-rose-deep) !important;
+        div[data-testid="stSlider"] div[role="slider"]:focus,
+        div[data-testid="stSlider"] div[role="slider"][aria-valuenow] {
+            background: var(--charth-rose) !important;
+            background-color: var(--charth-rose) !important;
             border-color: #FFFFFF !important;
-            box-shadow: 0 0 0 3px rgba(201,160,160,.32), 0 8px 22px rgba(31,31,31,.18) !important;
+            box-shadow: 0 0 0 3px rgba(201,160,160,.36), 0 8px 18px rgba(31,31,31,.16) !important;
         }
 
-        /* Ticks e marcas */
+        /* Número que aparece acima/ao lado da bolinha */
+        div[data-testid="stSlider"] [data-testid="stThumbValue"],
+        div[data-testid="stSlider"] [data-testid="stSliderThumbValue"],
+        div[data-testid="stSlider"] div[role="slider"] + div,
+        div[data-testid="stSlider"] div[role="slider"] ~ div {
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+            background: transparent !important;
+        }
+
+        /* Ticks 1 e 10 */
         div[data-testid="stSlider"] [data-testid="stTickBar"],
         div[data-testid="stSlider"] [data-testid="stTickBarMin"],
-        div[data-testid="stSlider"] [data-testid="stTickBarMax"] {
-            color: var(--charth-gray) !important;
-            -webkit-text-fill-color: var(--charth-gray) !important;
-        }
-
+        div[data-testid="stSlider"] [data-testid="stTickBarMax"],
         div[data-testid="stSlider"] [data-testid="stTickBar"] * {
-            color: var(--charth-gray) !important;
-            -webkit-text-fill-color: var(--charth-gray) !important;
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
         }
 
-        /* Streamlit controls: marca e legibilidade */
+        /* Labels, inputs e selects */
         div[data-testid="stWidgetLabel"] p,
         label,
         .stTextInput label,
@@ -256,6 +294,7 @@ def apply_brand_css() -> None:
         .stDateInput label,
         .stNumberInput label {
             color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
             font-weight: 750 !important;
             font-size: 14px !important;
             line-height: 1.35 !important;
@@ -277,6 +316,7 @@ def apply_brand_css() -> None:
             opacity: 1 !important;
         }
 
+        /* Botões */
         .stButton > button {
             border-radius: 999px;
             border: 1px solid var(--charth-black);
@@ -308,6 +348,7 @@ def apply_brand_css() -> None:
             stroke: var(--charth-black) !important;
         }
 
+        /* Sidebar */
         [data-testid="stSidebar"] {
             background: #F2ECE9;
         }
@@ -398,8 +439,8 @@ def apply_brand_css() -> None:
             .stDateInput label,
             .stNumberInput label {
                 font-size: 15px !important;
-                color: #111111 !important;
-                -webkit-text-fill-color: #111111 !important;
+                color: var(--charth-black) !important;
+                -webkit-text-fill-color: var(--charth-black) !important;
             }
 
             html,
@@ -467,9 +508,8 @@ def apply_brand_css() -> None:
                 stroke: var(--charth-black) !important;
             }
 
-            /* Slider no mobile: mais contraste */
             div[data-testid="stSlider"] [data-baseweb="slider"] > div:first-child {
-                background: #DCD7D4 !important;
+                background: var(--charth-silver-soft) !important;
             }
 
             div[data-testid="stSlider"] [data-baseweb="slider"] > div:first-child > div {
@@ -477,6 +517,7 @@ def apply_brand_css() -> None:
             }
 
             div[data-testid="stSlider"] div[role="slider"] {
+                background: var(--charth-rose) !important;
                 background-color: var(--charth-rose) !important;
                 border: 3px solid #FFFFFF !important;
             }
@@ -508,7 +549,7 @@ def metric_card(title: str, value: str, detail: str = "") -> None:
         f"""
         <div class="metric-card">
             <div class="section-kicker">{title}</div>
-            <div style="font-size:30px; color:#1f1f1f; font-weight:650;">{value}</div>
+            <div style="font-size:30px; color:#1F1F1F; font-weight:650;">{value}</div>
             <div class="small-muted">{detail}</div>
         </div>
         """,
