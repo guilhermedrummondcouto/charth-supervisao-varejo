@@ -25,7 +25,14 @@ def score_input(question: dict, section_name: str) -> float:
     qtype = question["type"]
     st.markdown('<div class="charth-score-wrap">', unsafe_allow_html=True)
     if qtype == "score":
-        val = st.slider(question["label"], min_value=1, max_value=10, value=10, step=1, key=key)
+        st.markdown("<div class='charth-score-helper'>Selecione uma nota de 1 a 10</div>", unsafe_allow_html=True)
+        val = st.selectbox(
+            question["label"],
+            options=list(range(1, 11)),
+            index=9,
+            key=key,
+            format_func=lambda x: f"{x:02d}",
+        )
         score_badge(float(val))
         st.markdown('</div>', unsafe_allow_html=True)
         return float(val)
