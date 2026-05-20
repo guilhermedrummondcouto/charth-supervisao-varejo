@@ -84,7 +84,11 @@ def render_evaluation_form(user: dict) -> None:
                 evaluation_date = st.date_input("Data", value=date.today())
                 supervisor = st.text_input("Supervisora", value=user.get("name", "") if user.get("role") == "supervisora" else "")
             with c2:
-                manager = st.text_input("Gerente de Loja")
+                manager = st.selectbox(
+                    "Gerente de Loja",
+                    ["Natasha", "Jéssica", "Ingrid", "Fernanda"],
+                    index=1,
+                )
                 store = st.selectbox("Loja", STORES)
 
         scores: dict[str, float] = {}
