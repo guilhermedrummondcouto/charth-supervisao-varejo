@@ -7,58 +7,97 @@ from .db import insert_evaluation, save_uploaded_file
 from .ui import header, score_badge
 
 
+def _section_header(number: int, title: str, description: str = "Avaliação oficial de performance da loja") -> None:
+    st.markdown(
+        f"""
+        <div class="charth-section-header">
+            <div class="charth-section-number">Seção {number} de 11</div>
+            <div class="charth-section-title">{title}</div>
+            <div class="charth-field-hint">{description}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def score_input(question: dict, section_name: str) -> float:
     key = f"score_{section_name}_{question['key']}"
     qtype = question["type"]
+    st.markdown('<div class="charth-score-wrap">', unsafe_allow_html=True)
     if qtype == "score":
         val = st.slider(question["label"], min_value=1, max_value=10, value=10, step=1, key=key)
         score_badge(float(val))
+        st.markdown('</div>', unsafe_allow_html=True)
         return float(val)
     if qtype == "binary":
         val = st.radio(question["label"], options=["Sim", "Não"], horizontal=True, key=key)
         score = 10.0 if val == "Sim" else 0.0
         score_badge(score)
+        st.markdown('</div>', unsafe_allow_html=True)
         return score
     if qtype == "binary_inverse":
         val = st.radio(question["label"], options=["Não", "Sim"], horizontal=True, key=key, help="Não = 10, Sim = 0")
         score = 10.0 if val == "Não" else 0.0
         score_badge(score)
+        st.markdown('</div>', unsafe_allow_html=True)
         return score
+    st.markdown('</div>', unsafe_allow_html=True)
     raise ValueError(f"Tipo desconhecido: {qtype}")
 
 
 def render_evaluation_form(user: dict) -> None:
-    header("Nova Avaliação", "Formulário oficial de avaliação de supervisão das lojas CHARTH.")
+    header("Nova Avaliação", "Formulário oficial de supervisão das lojas CHARTH.")
+    st.markdown(
+        """
+        <div class="charth-form-hero">
+            <div class="charth-form-hero-title">Avaliação Supervisão Varejo</div>
+            <div class="charth-form-hero-subtitle">
+                Preencha com atenção aos detalhes. A avaliação consolida atendimento, VM, resultados, gestão e experiência da cliente,
+                preservando o padrão premium e atemporal da CHARTH.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     with st.form("evaluation_form", clear_on_submit=False):
-        st.markdown("## Seção 1 de 11 · Identificação")
-        c1, c2 = st.columns(2)
-        with c1:
-            evaluation_date = st.date_input("Data", value=date.today())
-            supervisor = st.text_input("Supervisora", value=user.get("name", "") if user.get("role") == "supervisora" else "")
-        with c2:
-            manager = st.text_input("Gerente de Loja")
-            store = st.selectbox("Loja", STORES)
+        _section_header(1, "Identificação", "Dados principais da visita de supervisão")
+        with st.container(border=True):
+            c1, c2 = st.columns(2)
+            with c1:
+                evaluation_date = st.date_input("Data", value=date.today())
+                supervisor = st.text_input("Supervisora", value=user.get("name", "") if user.get("role") == "supervisora" else "")
+            with c2:
+                manager = st.text_input("Gerente de Loja")
+                store = st.selectbox("Loja", STORES)
 
         scores: dict[str, float] = {}
         observations: dict[str, str] = {}
         photo_vm = None
         for idx, section in enumerate(FORM_SECTIONS, start=2):
-            st.markdown(f"---\n## Seção {idx} de 11 · {section['name']}")
-            st.caption("Descrição opcional")
-            for q in section["questions"]:
-                scores[q["key"]] = score_input(q, section["name"])
-            if section.get("photo_key"):
-                photo_vm = st.file_uploader("Enviar foto, caso necessário", type=["png", "jpg", "jpeg", "webp"], key="foto_vm_upload")
-            observations[section["observation_key"]] = st.text_area(
-                f"Observações {section['name']}", key=f"obs_{section['observation_key']}", height=90
-            )
+            _section_header(idx, section["name"])
+            with st.container(border=True):
+                questions = section["questions"]
+                for i in range(0, len(questions), 2):
+                    cols = st.columns(2)
+                    for col, q in zip(cols, questions[i:i+2]):
+                        with col:
+                            scores[q["key"]] = score_input(q, section["name"])
+                if section.get("photo_key"):
+                    st.markdown("#### Evidência visual")
+                    photo_vm = st.file_uploader("Enviar foto, caso necessário", type=["png", "jpg", "jpeg", "webp"], key="foto_vm_upload")
+                observations[section["observation_key"]] = st.text_area(
+                    f"Observações {section['name']}", key=f"obs_{section['observation_key']}", height=100,
+                    placeholder="Registre aqui os principais pontos observados, combinados e oportunidades de evolução."
+                )
 
-        st.markdown("---\n## Seção 11 de 11 · Perguntas Estratégicas")
-        strategic = {}
-        for field in STRATEGIC_FIELDS:
-            strategic[field["key"]] = st.text_area(field["label"], key=f"strategic_{field['key']}", height=90)
-        strategic["dna_charth"] = st.radio("A loja representa o DNA da Charth?", DNA_OPTIONS, horizontal=True)
-        grave_issue = st.radio("Houve falta grave disciplinar no período avaliado?", ["Não", "Sim"], horizontal=True) == "Sim"
+        _section_header(11, "Perguntas Estratégicas", "Síntese qualitativa para gestão e evolução da loja")
+        with st.container(border=True):
+            strategic = {}
+            for field in STRATEGIC_FIELDS:
+                strategic[field["key"]] = st.text_area(field["label"], key=f"strategic_{field['key']}", height=90)
+            strategic["dna_charth"] = st.radio("A loja representa o DNA da Charth?", DNA_OPTIONS, horizontal=True)
+            grave_issue = st.radio("Houve falta grave disciplinar no período avaliado?", ["Não", "Sim"], horizontal=True) == "Sim"
 
         submitted = st.form_submit_button("Salvar avaliação", use_container_width=True)
 
