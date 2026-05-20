@@ -20,7 +20,7 @@ def apply_brand_css() -> None:
             --charth-gray: #6D6E71;
             --charth-silver: #B8B8B8;
             --charth-silver-soft: #E7E2DF;
-            --charth-silver-line: #CFC8C4;
+            --charth-silver-line: #D8D2CF;
             --charth-rose: #C9A0A0;
             --charth-rose-deep: #B98585;
             --charth-rose-soft: #F3E8E6;
@@ -50,7 +50,7 @@ def apply_brand_css() -> None:
 
         .stApp {
             background:
-                radial-gradient(circle at top left, rgba(201,160,160,.11) 0%, rgba(248,246,243,1) 34%, rgba(244,239,236,1) 100%);
+                radial-gradient(circle at top left, rgba(201,160,160,.10) 0%, rgba(248,246,243,1) 34%, rgba(244,239,236,1) 100%);
             color: var(--charth-black);
         }
 
@@ -186,13 +186,15 @@ def apply_brand_css() -> None:
 
         /* =========================================================
            SLIDER CHARTH
-           Regra: NENHUM vermelho/coral.
-           Base em prata suave, trilho ativo preto, bolinha rosê.
+           IMPORTANTE:
+           A cor coral/vermelha vinha do primaryColor do Streamlit.
+           O arquivo .streamlit/config.toml precisa usar primaryColor preto.
+           Aqui só refinamos a bolinha e reforçamos contraste.
            ========================================================= */
 
         div[data-testid="stSlider"] {
-            --slider-track: var(--charth-silver-soft);
             --slider-active: var(--charth-black);
+            --slider-base: var(--charth-silver-soft);
             --slider-handle: var(--charth-rose);
         }
 
@@ -203,79 +205,45 @@ def apply_brand_css() -> None:
             -webkit-text-fill-color: var(--charth-black) !important;
         }
 
-        div[data-testid="stSlider"] [data-baseweb="slider"] {
-            color: var(--charth-black) !important;
+        /* Esconde qualquer resíduo do vermelho padrão via accent-color */
+        div[data-testid="stSlider"] input,
+        div[data-testid="stSlider"] * {
+            accent-color: var(--charth-black) !important;
         }
 
-        /* Fundo do trilho */
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div,
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div,
-        div[data-testid="stSlider"] [data-baseweb="slider"] [data-testid="stSliderThumbValue"] {
+        /* Track base e track ativo */
+        div[data-testid="stSlider"] [data-baseweb="slider"] div {
             border-color: var(--charth-silver-line) !important;
         }
 
-        /* Remove qualquer vermelho/coral aplicado por tema inline */
-        div[data-testid="stSlider"] [style*="255, 75, 75"],
-        div[data-testid="stSlider"] [style*="255,75,75"],
-        div[data-testid="stSlider"] [style*="#ff4b4b"],
-        div[data-testid="stSlider"] [style*="#FF4B4B"],
-        div[data-testid="stSlider"] [style*="rgb(255"],
-        div[data-testid="stSlider"] [style*="coral"] {
-            background: var(--charth-black) !important;
-            background-color: var(--charth-black) !important;
-            color: var(--charth-black) !important;
-            border-color: var(--charth-black) !important;
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div {
+            background-color: var(--charth-silver-soft) !important;
         }
 
-        /* Trilho geral: prata */
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div:first-child {
-            background: var(--charth-silver-soft) !important;
-            box-shadow: none !important;
-        }
-
-        /* Parte ativa: preto */
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div:first-child > div {
-            background: var(--charth-black) !important;
-            box-shadow: none !important;
-        }
-
-        /* Cobertura extra para versões diferentes do BaseWeb */
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div:nth-child(1) > div:nth-child(1),
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div:nth-child(1) > div:nth-child(2),
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div:nth-child(2),
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div:nth-child(3) {
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div {
             background-color: var(--charth-black) !important;
         }
 
-        /* Bolinha */
+        /* Handle/bolinha rosê */
         div[data-testid="stSlider"] div[role="slider"] {
             background: var(--charth-rose) !important;
             background-color: var(--charth-rose) !important;
             border: 3px solid #FFFFFF !important;
-            box-shadow: 0 0 0 2px rgba(31,31,31,.20), 0 5px 14px rgba(31,31,31,.14) !important;
+            box-shadow: 0 0 0 2px rgba(31,31,31,.22), 0 5px 14px rgba(31,31,31,.14) !important;
             outline: none !important;
         }
 
         div[data-testid="stSlider"] div[role="slider"]:hover,
-        div[data-testid="stSlider"] div[role="slider"]:focus,
-        div[data-testid="stSlider"] div[role="slider"][aria-valuenow] {
-            background: var(--charth-rose) !important;
-            background-color: var(--charth-rose) !important;
+        div[data-testid="stSlider"] div[role="slider"]:focus {
+            background: var(--charth-rose-deep) !important;
+            background-color: var(--charth-rose-deep) !important;
             border-color: #FFFFFF !important;
             box-shadow: 0 0 0 3px rgba(201,160,160,.36), 0 8px 18px rgba(31,31,31,.16) !important;
         }
 
-        /* Número que aparece acima/ao lado da bolinha */
+        /* Número e ticks */
         div[data-testid="stSlider"] [data-testid="stThumbValue"],
         div[data-testid="stSlider"] [data-testid="stSliderThumbValue"],
-        div[data-testid="stSlider"] div[role="slider"] + div,
-        div[data-testid="stSlider"] div[role="slider"] ~ div {
-            color: var(--charth-black) !important;
-            -webkit-text-fill-color: var(--charth-black) !important;
-            background: transparent !important;
-        }
-
-        /* Ticks 1 e 10 */
         div[data-testid="stSlider"] [data-testid="stTickBar"],
         div[data-testid="stSlider"] [data-testid="stTickBarMin"],
         div[data-testid="stSlider"] [data-testid="stTickBarMax"],
@@ -506,20 +474,6 @@ def apply_brand_css() -> None:
                 -webkit-text-fill-color: var(--charth-black) !important;
                 fill: var(--charth-black) !important;
                 stroke: var(--charth-black) !important;
-            }
-
-            div[data-testid="stSlider"] [data-baseweb="slider"] > div:first-child {
-                background: var(--charth-silver-soft) !important;
-            }
-
-            div[data-testid="stSlider"] [data-baseweb="slider"] > div:first-child > div {
-                background: var(--charth-black) !important;
-            }
-
-            div[data-testid="stSlider"] div[role="slider"] {
-                background: var(--charth-rose) !important;
-                background-color: var(--charth-rose) !important;
-                border: 3px solid #FFFFFF !important;
             }
         }
         </style>
