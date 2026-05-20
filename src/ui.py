@@ -1,132 +1,231 @@
 from __future__ import annotations
-from datetime import date
 import streamlit as st
-from .calculations import compute_bonus, compute_section_scores, compute_weighted_score, status_from_weighted
-from .config import DNA_OPTIONS, FORM_SECTIONS, STORES, STRATEGIC_FIELDS
-from .db import insert_evaluation, save_uploaded_file
-from .ui import header, score_badge
+from .calculations import score_status
 
 
-def _section_header(number: int, title: str, description: str = "Avaliação oficial de performance da loja") -> None:
-    st.markdown(
-        f"""
-        <div class="charth-section-header">
-            <div class="charth-section-number">Seção {number} de 11</div>
-            <div class="charth-section-title">{title}</div>
-            <div class="charth-field-hint">{description}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def score_input(question: dict, section_name: str) -> float:
-    key = f"score_{section_name}_{question['key']}"
-    qtype = question["type"]
-    st.markdown('<div class="charth-score-wrap">', unsafe_allow_html=True)
-    if qtype == "score":
-        val = st.slider(question["label"], min_value=1, max_value=10, value=10, step=1, key=key)
-        score_badge(float(val))
-        st.markdown('</div>', unsafe_allow_html=True)
-        return float(val)
-    if qtype == "binary":
-        val = st.radio(question["label"], options=["Sim", "Não"], horizontal=True, key=key)
-        score = 10.0 if val == "Sim" else 0.0
-        score_badge(score)
-        st.markdown('</div>', unsafe_allow_html=True)
-        return score
-    if qtype == "binary_inverse":
-        val = st.radio(question["label"], options=["Não", "Sim"], horizontal=True, key=key, help="Não = 10, Sim = 0")
-        score = 10.0 if val == "Não" else 0.0
-        score_badge(score)
-        st.markdown('</div>', unsafe_allow_html=True)
-        return score
-    st.markdown('</div>', unsafe_allow_html=True)
-    raise ValueError(f"Tipo desconhecido: {qtype}")
-
-
-def render_evaluation_form(user: dict) -> None:
-    header("Nova Avaliação", "Formulário oficial de supervisão das lojas CHARTH.")
+def apply_brand_css() -> None:
     st.markdown(
         """
-        <div class="charth-form-hero">
-            <div class="charth-form-hero-title">Avaliação Supervisão Varejo</div>
-            <div class="charth-form-hero-subtitle">
-                Preencha com atenção aos detalhes. A avaliação consolida atendimento, VM, resultados, gestão e experiência da cliente,
-                preservando o padrão premium e atemporal da CHARTH.
-            </div>
-        </div>
+        <style>
+        @font-face { font-family: 'SIMPLO'; src: local('SIMPLO'), local('Simplo'); }
+        :root {
+            --charth-black: #1F1F1F;
+            --charth-gray: #6D6E71;
+            --charth-silver: #B8B8B8;
+            --charth-rose: #C9A0A0;
+            --charth-rose-deep: #B98585;
+            --charth-rose-soft: #F3E8E6;
+            --charth-cream: #F8F6F3;
+            --charth-card: #FFFDFC;
+            --charth-gold: #C8A24A;
+            --charth-bronze: #A66A3F;
+            --charth-critical: #9E3F45;
+            --charth-alert: #B8875D;
+            --charth-good: #6D6E71;
+            --charth-great: #C9A0A0;
+        }
+
+        html, body, [class*="css"], .stMarkdown, .stTextInput, .stSelectbox, .stRadio, .stDateInput {
+            font-family: 'SIMPLO', 'Avenir Next', 'Segoe UI', Arial, sans-serif !important;
+        }
+        .stApp {
+            background:
+                radial-gradient(circle at top left, rgba(201,160,160,.16) 0%, rgba(248,246,243,1) 34%, rgba(244,239,236,1) 100%);
+            color: var(--charth-black);
+        }
+        h1, h2, h3 {
+            letter-spacing: .01em;
+            color: var(--charth-black);
+            font-weight: 650;
+        }
+        h1 { font-size: 2.25rem !important; }
+        h2 { font-size: 1.45rem !important; }
+        h3 { font-size: 1.12rem !important; }
+
+        .brand-title {
+            letter-spacing: .52em;
+            font-size: 40px;
+            text-align:center;
+            color:#1F1F1F;
+            margin-bottom:2px;
+            font-weight:300;
+        }
+        .brand-subtitle {
+            letter-spacing:.25em;
+            text-transform:uppercase;
+            text-align:center;
+            color:#6D6E71;
+            font-size:12px;
+            margin-bottom:28px;
+        }
+        .section-card, .login-card, .metric-card, .charth-premium-card {
+            background: rgba(255,253,252,.94);
+            border: 1px solid rgba(201,160,160,.32);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 18px 45px rgba(31,31,31,.055);
+            margin-bottom: 18px;
+        }
+        .section-kicker {
+            color:#8A7775;
+            text-transform:uppercase;
+            letter-spacing:.18em;
+            font-size:12px;
+            margin-bottom:4px;
+            font-weight:800;
+        }
+        .small-muted { color:#6D6E71; font-size:12px; line-height:1.5; }
+
+        .charth-form-hero {
+            background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
+            border: 1px solid rgba(201,160,160,.34);
+            border-radius: 28px;
+            padding: 26px 28px;
+            margin: 12px 0 22px 0;
+            box-shadow: 0 18px 42px rgba(31,31,31,.055);
+        }
+        .charth-form-hero-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: .02em;
+            color: #1F1F1F;
+        }
+        .charth-form-hero-subtitle {
+            font-size: 14px;
+            color:#6D6E71;
+            line-height:1.55;
+            margin-top: 6px;
+        }
+        .charth-section-header {
+            background: #FFFDFC;
+            border-top: 1px solid rgba(201,160,160,.35);
+            border-bottom: 1px solid rgba(201,160,160,.22);
+            padding: 16px 4px 14px 4px;
+            margin-top: 18px;
+            margin-bottom: 14px;
+        }
+        .charth-section-number {
+            color:#B98585;
+            font-size:12px;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.16em;
+            margin-bottom:4px;
+        }
+        .charth-section-title {
+            color:#1F1F1F;
+            font-size:22px;
+            font-weight:800;
+            letter-spacing:.01em;
+        }
+        .charth-field-hint {
+            color:#6D6E71;
+            font-size:12px;
+            margin-top:-4px;
+            margin-bottom:12px;
+        }
+        .status-pill {
+            display:inline-block;
+            border-radius:999px;
+            padding:6px 12px;
+            color:white;
+            font-size:12px;
+            letter-spacing:.05em;
+            font-weight:750;
+            margin-top:6px;
+            margin-bottom:8px;
+        }
+        .charth-score-wrap {
+            background:#FFFDFC;
+            border:1px solid rgba(109,110,113,.14);
+            border-radius:18px;
+            padding:14px 16px 10px 16px;
+            margin: 0 0 12px 0;
+        }
+
+        /* Streamlit controls: marca e legibilidade */
+        div[data-testid="stSlider"] div[role="slider"] {
+            background-color: var(--charth-rose) !important;
+            border-color: var(--charth-rose) !important;
+            box-shadow: 0 0 0 4px rgba(201,160,160,.14) !important;
+        }
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div {
+            background-color: var(--charth-rose) !important;
+        }
+        div[data-testid="stWidgetLabel"] p, label, .stTextInput label, .stTextArea label, .stSelectbox label, .stRadio label, .stDateInput label {
+            color: #1F1F1F !important;
+            font-weight: 750 !important;
+            font-size: 14px !important;
+            line-height: 1.35 !important;
+        }
+        input, textarea, [data-baseweb="select"] {
+            color: #1F1F1F !important;
+            background: #F7F4F2 !important;
+            border-radius: 14px !important;
+        }
+        input::placeholder, textarea::placeholder { color: #7E7E7E !important; opacity: 1 !important; }
+        .stButton>button {
+            border-radius: 999px;
+            border: 1px solid #C9A0A0;
+            background: #1F1F1F;
+            color: white;
+            letter-spacing:.05em;
+            font-weight:700;
+        }
+        .stButton>button:hover {
+            border-color: #C9A0A0;
+            background:#C9A0A0;
+            color:#1F1F1F;
+        }
+        [data-testid="stSidebar"] { background: #F2ECE9; }
+        [data-testid="stSidebar"] * { color: #1F1F1F; }
+        .dataframe { font-size: 13px; }
+
+        @media (max-width: 768px) {
+            .brand-title { font-size: 28px; letter-spacing:.36em; text-align:left; }
+            .brand-subtitle { text-align:left; letter-spacing:.14em; font-size:10px; }
+            h1 { font-size: 1.75rem !important; }
+            h2 { font-size: 1.25rem !important; }
+            h3 { font-size: 1.05rem !important; }
+            .charth-form-hero { padding: 20px 18px; border-radius:22px; }
+            .charth-section-title { font-size:19px; }
+            .section-card, .login-card, .metric-card, .charth-premium-card { padding:18px; border-radius:20px; }
+            div[data-testid="stWidgetLabel"] p, label, .stTextInput label, .stTextArea label, .stSelectbox label, .stRadio label, .stDateInput label {
+                font-size: 15px !important;
+                color: #111 !important;
+            }
+            input, textarea { font-size: 16px !important; color:#111 !important; }
+        }
+        </style>
         """,
         unsafe_allow_html=True,
     )
 
-    with st.form("evaluation_form", clear_on_submit=False):
-        _section_header(1, "Identificação", "Dados principais da visita de supervisão")
-        with st.container(border=True):
-            c1, c2 = st.columns(2)
-            with c1:
-                evaluation_date = st.date_input("Data", value=date.today())
-                supervisor = st.text_input("Supervisora", value=user.get("name", "") if user.get("role") == "supervisora" else "")
-            with c2:
-                manager = st.text_input("Gerente de Loja")
-                store = st.selectbox("Loja", STORES)
 
-        scores: dict[str, float] = {}
-        observations: dict[str, str] = {}
-        photo_vm = None
-        for idx, section in enumerate(FORM_SECTIONS, start=2):
-            _section_header(idx, section["name"])
-            with st.container(border=True):
-                questions = section["questions"]
-                for i in range(0, len(questions), 2):
-                    cols = st.columns(2)
-                    for col, q in zip(cols, questions[i:i+2]):
-                        with col:
-                            scores[q["key"]] = score_input(q, section["name"])
-                if section.get("photo_key"):
-                    st.markdown("#### Evidência visual")
-                    photo_vm = st.file_uploader("Enviar foto, caso necessário", type=["png", "jpg", "jpeg", "webp"], key="foto_vm_upload")
-                observations[section["observation_key"]] = st.text_area(
-                    f"Observações {section['name']}", key=f"obs_{section['observation_key']}", height=100,
-                    placeholder="Registre aqui os principais pontos observados, combinados e oportunidades de evolução."
-                )
+def header(title: str, subtitle: str = "") -> None:
+    st.markdown('<div class="brand-title">CHARTH</div>', unsafe_allow_html=True)
+    st.markdown('<div class="brand-subtitle">Supervisão de Varejo</div>', unsafe_allow_html=True)
+    st.markdown(f"# {title}")
+    if subtitle:
+        st.markdown(f"<div class='small-muted'>{subtitle}</div>", unsafe_allow_html=True)
 
-        _section_header(11, "Perguntas Estratégicas", "Síntese qualitativa para gestão e evolução da loja")
-        with st.container(border=True):
-            strategic = {}
-            for field in STRATEGIC_FIELDS:
-                strategic[field["key"]] = st.text_area(field["label"], key=f"strategic_{field['key']}", height=90)
-            strategic["dna_charth"] = st.radio("A loja representa o DNA da Charth?", DNA_OPTIONS, horizontal=True)
-            grave_issue = st.radio("Houve falta grave disciplinar no período avaliado?", ["Não", "Sim"], horizontal=True) == "Sim"
 
-        submitted = st.form_submit_button("Salvar avaliação", use_container_width=True)
+def score_badge(score: float) -> None:
+    label, color = score_status(score)
+    st.markdown(
+        f"<span class='status-pill' style='background:{color};'>{label} · {float(score):.2f}</span>",
+        unsafe_allow_html=True,
+    )
 
-    if submitted:
-        if not supervisor.strip() or not manager.strip():
-            st.error("Preencha Supervisora e Gerente de Loja antes de salvar.")
-            return
-        section_scores = compute_section_scores(scores)
-        weighted_score = compute_weighted_score(section_scores)
-        overall_status = status_from_weighted(weighted_score)
-        bonus = compute_bonus(section_scores, weighted_score, grave_issue)
-        photo_path = save_uploaded_file(photo_vm, f"{store}_vm") if photo_vm else None
-        evaluation_id = insert_evaluation(
-            {
-                "evaluation_date": evaluation_date.isoformat(),
-                "supervisor": supervisor.strip(),
-                "manager": manager.strip(),
-                "store": store,
-                "scores": scores,
-                "observations": observations,
-                "strategic": strategic,
-                "section_scores": section_scores,
-                "weighted_score": weighted_score,
-                "overall_status": overall_status,
-                "bonus": bonus,
-                "grave_disciplinary_issue": grave_issue,
-                "photo_vm_path": photo_path,
-                "created_by": user.get("username"),
-            }
-        )
-        st.success(f"Avaliação #{evaluation_id} salva com sucesso.")
-        st.info(f"Média ponderada: {weighted_score:.2f} · Status: {overall_status} · Bonificação: {bonus['level']}")
+
+def metric_card(title: str, value: str, detail: str = "") -> None:
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="section-kicker">{title}</div>
+            <div style="font-size:30px; color:#1f1f1f; font-weight:650;">{value}</div>
+            <div class="small-muted">{detail}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
