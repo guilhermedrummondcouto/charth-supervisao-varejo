@@ -191,9 +191,9 @@ def apply_brand_css() -> None:
             margin-top: -4px;
             margin-bottom: 8px;
             letter-spacing: .02em;
+            text-transform: uppercase;
         }
 
-        /* Controles sem slider: nenhum vermelho/coral */
         * {
             accent-color: var(--charth-black) !important;
         }
@@ -247,16 +247,93 @@ def apply_brand_css() -> None:
             opacity: 1 !important;
         }
 
-        /* Radio binário em preto/rosê */
-        div[role="radiogroup"] label,
-        div[role="radiogroup"] span,
-        div[role="radiogroup"] p {
-            color: var(--charth-black) !important;
-            -webkit-text-fill-color: var(--charth-black) !important;
+        /* =========================================================
+           Escala NPS 1-10
+           Usada no formulário de avaliação no lugar do slider.
+           ========================================================= */
+        div[data-testid="stRadio"] div[role="radiogroup"] {
+            gap: 6px !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
         }
 
-        div[role="radiogroup"] [data-baseweb="radio"] div {
+        div[data-testid="stRadio"] div[role="radiogroup"] label {
+            min-width: 42px !important;
+            height: 38px !important;
+            padding: 0 12px !important;
+            margin: 0 4px 6px 0 !important;
+            border: 1px solid var(--charth-silver-line) !important;
+            border-radius: 999px !important;
+            background: #FFFDFC !important;
+            box-shadow: 0 5px 14px rgba(31,31,31,.035) !important;
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all .15s ease-in-out !important;
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
+            background: var(--charth-rose-soft) !important;
+            border-color: var(--charth-rose) !important;
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+            background: var(--charth-black) !important;
             border-color: var(--charth-black) !important;
+            box-shadow: 0 8px 20px rgba(31,31,31,.18) !important;
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) * {
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            font-weight: 800 !important;
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
+            display: none !important;
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] label p {
+            margin: 0 !important;
+            color: inherit !important;
+            -webkit-text-fill-color: inherit !important;
+            font-weight: 750 !important;
+        }
+
+        /* Sidebar: mantém o menu simples, sem virar escala NPS */
+        [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] {
+            gap: 0 !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+        }
+
+        [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label {
+            min-width: unset !important;
+            height: auto !important;
+            padding: 2px 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            justify-content: flex-start !important;
+        }
+
+        [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
+            display: flex !important;
+        }
+
+        [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) * {
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
         }
 
         /* Botões */
@@ -371,6 +448,13 @@ def apply_brand_css() -> None:
             .charth-premium-card {
                 padding: 18px;
                 border-radius: 20px;
+            }
+
+            div[data-testid="stRadio"] div[role="radiogroup"] label {
+                min-width: 39px !important;
+                height: 36px !important;
+                padding: 0 10px !important;
+                margin: 0 3px 6px 0 !important;
             }
 
             div[data-testid="stWidgetLabel"] p,
