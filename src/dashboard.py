@@ -4,8 +4,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from .calculations import result_meta_reference, status_from_weighted
-from .config import BONUS_CONFIG, FORM_SECTIONS, GESTORA_CAN_VIEW_ALL_STORES, ROLE_GESTORA, STORES
-from .db import action_plans_df, evaluations_df, export_flattened_evaluations
+from .config import BONUS_CONFIG, FORM_SECTIONS, GESTORA_CAN_VIEW_ALL_STORES, ROLE_ADMIN, ROLE_GESTORA, STORES
+from .db import action_plans_df, delete_evaluation, evaluations_df, export_flattened_evaluations
 from .ui import header, metric_card
 
 
@@ -28,6 +28,21 @@ STRATEGIC_LABELS = {
     "dna_charth": "A loja representa o DNA da Charth?",
 }
 
+STATUS_COLOR_MAP = {
+    "Excelência CHARTH": "#C8A24A",      # Ouro
+    "Loja Forte": "#B8B8B8",            # Prata
+    "Loja em Atenção": "#A66A3F",       # Bronze
+    "Plano de Ação Imediato": "#9E3F45", # Crítico
+}
+BONUS_COLOR_MAP = {
+    "Ouro": "#C8A24A",
+    "Prata": "#B8B8B8",
+    "Bronze": "#A66A3F",
+    "Sem bônus": "#6D6E71",
+}
+SECTION_COLOR_SCALE = [[0, "#9E3F45"], [0.55, "#B8875D"], [0.72, "#A66A3F"], [0.85, "#B8B8B8"], [1, "#C8A24A"]]
+STORE_SEQUENCE = ["#1F1F1F", "#C9A0A0", "#6D6E71", "#B8B8B8", "#C8A24A", "#A66A3F"]
+
 
 def filter_df_for_user(df: pd.DataFrame, user: dict) -> pd.DataFrame:
     if df.empty:
@@ -39,15 +54,15 @@ def filter_df_for_user(df: pd.DataFrame, user: dict) -> pd.DataFrame:
 
 def _score_badge(score: float) -> str:
     if score >= 9:
-        label, bg = "Excelência Charth", "#C9A0A0"
+        label, bg = "Excelência Charth", "#C8A24A"
     elif score >= 8:
-        label, bg = "Forte", "#9FA0A3"
+        label, bg = "Forte", "#B8B8B8"
     elif score >= 7:
-        label, bg = "Regular", "#B8A76A"
+        label, bg = "Regular", "#A66A3F"
     elif score >= 5:
-        label, bg = "Atenção", "#C98F5A"
+        label, bg = "Atenção", "#B8875D"
     else:
-        label, bg = "Crítico", "#B85C5C"
+        label, bg = "Crítico", "#9E3F45"
     return f"""
     <span style="
         display:inline-block;
@@ -157,13 +172,21 @@ def dashboard_page(user: dict) -> None:
         """
         <style>
         .charth-dashboard-note {
-            background:linear-gradient(135deg, #F7F4F2 0%, #FFFFFF 100%);
-            border:1px solid rgba(201,160,160,.30);
-            border-radius:18px;
-            padding:16px 18px;
+            background:linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
+            border:1px solid rgba(201,160,160,.34);
+            border-radius:20px;
+            padding:18px 20px;
             margin:6px 0 18px 0;
             color:#343434;
             line-height:1.55;
+            box-shadow:0 12px 28px rgba(31,31,31,.035);
+        }
+        .charth-chart-title {
+            color:#1F1F1F;
+            font-size:18px;
+            font-weight:850;
+            letter-spacing:.02em;
+            margin:4px 0 10px 0;
         }
         .charth-insight-card {
             background:#fff;
@@ -250,16 +273,17 @@ def dashboard_page(user: dict) -> None:
         with left:
             st.markdown("### Ranking de lojas")
             rank = filtered.groupby("store", as_index=False)["weighted_score"].mean().sort_values("weighted_score", ascending=False)
-            fig = px.bar(rank, x="store", y="weighted_score", text="weighted_score", range_y=[0, 10])
-            fig.update_traces(marker_color="#C9A0A0", texttemplate="%{text:.2f}", textposition="outside")
-            fig.update_layout(template="plotly_white", xaxis_title="Loja", yaxis_title="Média ponderada", height=390, margin=dict(l=20,r=20,t=20,b=20))
+            rank["status_operacional"] = rank["weighted_score"].apply(status_from_weighted)
+            fig = px.bar(rank, x="store", y="weighted_score", color="status_operacional", text="weighted_score", range_y=[0, 10], color_discrete_map=STATUS_COLOR_MAP)
+            fig.update_traces(texttemplate="%{text:.2f}", textposition="outside")
+            fig.update_layout(template="plotly_white", xaxis_title="Loja", yaxis_title="Média ponderada", height=390, margin=dict(l=20,r=20,t=20,b=20), legend_title_text="Status")
             st.plotly_chart(fig, use_container_width=True)
         with right:
             st.markdown("### Status operacional")
             status_order = ["Excelência CHARTH", "Loja Forte", "Loja em Atenção", "Plano de Ação Imediato"]
             status_df = latest["status_operacional"].value_counts().reindex(status_order, fill_value=0).reset_index()
             status_df.columns = ["Status", "Quantidade"]
-            fig_status = px.pie(status_df, names="Status", values="Quantidade", hole=.55)
+            fig_status = px.pie(status_df, names="Status", values="Quantidade", hole=.58, color="Status", color_discrete_map=STATUS_COLOR_MAP)
             fig_status.update_traces(textposition="inside", textinfo="percent+label")
             fig_status.update_layout(template="plotly_white", height=390, margin=dict(l=10,r=10,t=10,b=10), showlegend=False)
             st.plotly_chart(fig_status, use_container_width=True)
@@ -294,6 +318,7 @@ def dashboard_page(user: dict) -> None:
             text="store",
             range_y=[0,10],
             labels={"avaliacoes":"Quantidade de avaliações", "media_geral":"Média geral", "status_medio":"Status"},
+            color_discrete_map=STATUS_COLOR_MAP,
         )
         fig_store.update_traces(textposition="top center")
         fig_store.update_layout(template="plotly_white", height=430, margin=dict(l=20,r=20,t=20,b=20))
@@ -321,8 +346,9 @@ def dashboard_page(user: dict) -> None:
             st.caption("Sem médias por seção para exibir.")
         else:
             sec_overall = section_long.groupby("Seção", as_index=False)["Média"].mean().sort_values("Média", ascending=True)
-            fig_sec = px.bar(sec_overall, x="Média", y="Seção", orientation="h", text="Média", range_x=[0, 10])
-            fig_sec.update_traces(marker_color="#6D6E71", texttemplate="%{text:.2f}")
+            sec_overall["Status"] = sec_overall["Média"].apply(status_from_weighted)
+            fig_sec = px.bar(sec_overall, x="Média", y="Seção", orientation="h", color="Status", text="Média", range_x=[0, 10], color_discrete_map=STATUS_COLOR_MAP)
+            fig_sec.update_traces(texttemplate="%{text:.2f}")
             fig_sec.update_layout(template="plotly_white", height=520, yaxis_title="", xaxis_title="Média", margin=dict(l=20,r=20,t=20,b=20))
             st.plotly_chart(fig_sec, use_container_width=True)
 
@@ -335,7 +361,7 @@ def dashboard_page(user: dict) -> None:
                 aspect="auto",
                 zmin=0,
                 zmax=10,
-                color_continuous_scale=[[0, "#9E3F45"], [0.55, "#B8875D"], [0.72, "#B7A86A"], [0.85, "#9FA0A3"], [1, "#C9A0A0"]],
+                color_continuous_scale=SECTION_COLOR_SCALE,
             )
             fig_heat.update_layout(template="plotly_white", height=420, xaxis_title="Seção", yaxis_title="Loja", margin=dict(l=20,r=20,t=20,b=20))
             st.plotly_chart(fig_heat, use_container_width=True)
@@ -359,7 +385,7 @@ def dashboard_page(user: dict) -> None:
     with tab4:
         st.markdown("### Evolução da média ponderada")
         line_df = filtered.sort_values("evaluation_date")
-        fig_line = px.line(line_df, x="evaluation_date", y="weighted_score", color="store", markers=True)
+        fig_line = px.line(line_df, x="evaluation_date", y="weighted_score", color="store", markers=True, color_discrete_sequence=STORE_SEQUENCE)
         fig_line.add_hline(y=9, line_dash="dot", line_color="#C9A0A0", annotation_text="Excelência CHARTH")
         fig_line.add_hline(y=8, line_dash="dot", line_color="#6D6E71", annotation_text="Loja Forte")
         fig_line.add_hline(y=7, line_dash="dot", line_color="#B8875D", annotation_text="Loja em Atenção")
@@ -368,7 +394,7 @@ def dashboard_page(user: dict) -> None:
 
         st.markdown("### Evolução mensal por loja")
         monthly = filtered.groupby(["mes_referencia", "store"], as_index=False)["weighted_score"].mean()
-        fig_month = px.bar(monthly, x="mes_referencia", y="weighted_score", color="store", barmode="group", text="weighted_score", range_y=[0,10])
+        fig_month = px.bar(monthly, x="mes_referencia", y="weighted_score", color="store", barmode="group", text="weighted_score", range_y=[0,10], color_discrete_sequence=STORE_SEQUENCE)
         fig_month.update_traces(texttemplate="%{text:.1f}", textposition="outside")
         fig_month.update_layout(template="plotly_white", xaxis_title="Mês", yaxis_title="Média", height=420, margin=dict(l=20,r=20,t=20,b=20))
         st.plotly_chart(fig_month, use_container_width=True)
@@ -477,6 +503,16 @@ def history_page(user: dict) -> None:
         st.markdown("### Observações por bloco")
         for key, label in OBSERVATION_LABELS.items():
             _render_text_card(label, observations.get(key, ""), accent="#9FA0A3")
+
+    if user.get("role") == ROLE_ADMIN:
+        st.markdown("---")
+        with st.expander("Área Admin · Excluir avaliação", expanded=False):
+            st.warning("Esta ação remove a avaliação selecionada e todos os planos de ação vinculados a ela. Use apenas para corrigir lançamentos indevidos.")
+            confirmar = st.checkbox(f"Confirmo que desejo excluir a avaliação #{selected}", key=f"confirm_delete_eval_{selected}")
+            if st.button("Excluir avaliação selecionada", type="secondary", use_container_width=True, disabled=not confirmar, key=f"delete_eval_{selected}"):
+                delete_evaluation(int(selected))
+                st.success(f"Avaliação #{selected} excluída com sucesso.")
+                st.rerun()
 
 
 def _format_date_br(value) -> str:
