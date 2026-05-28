@@ -247,62 +247,6 @@ def apply_brand_css() -> None:
             opacity: 1 !important;
         }
 
-        /* =========================================================
-           Escala NPS 1-10
-           Usada no formulário de avaliação no lugar do slider.
-           ========================================================= */
-        div[data-testid="stRadio"] div[role="radiogroup"] {
-            gap: 6px !important;
-            flex-wrap: wrap !important;
-            align-items: center !important;
-        }
-
-        div[data-testid="stRadio"] div[role="radiogroup"] label {
-            min-width: 42px !important;
-            height: 38px !important;
-            padding: 0 12px !important;
-            margin: 0 4px 6px 0 !important;
-            border: 1px solid var(--charth-silver-line) !important;
-            border-radius: 999px !important;
-            background: #FFFDFC !important;
-            box-shadow: 0 5px 14px rgba(31,31,31,.035) !important;
-            color: var(--charth-black) !important;
-            -webkit-text-fill-color: var(--charth-black) !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            cursor: pointer !important;
-            transition: all .15s ease-in-out !important;
-        }
-
-        div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
-            background: var(--charth-rose-soft) !important;
-            border-color: var(--charth-rose) !important;
-        }
-
-        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
-            background: var(--charth-black) !important;
-            border-color: var(--charth-black) !important;
-            box-shadow: 0 8px 20px rgba(31,31,31,.18) !important;
-        }
-
-        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) * {
-            color: #FFFFFF !important;
-            -webkit-text-fill-color: #FFFFFF !important;
-            font-weight: 800 !important;
-        }
-
-        div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
-            display: none !important;
-        }
-
-        div[data-testid="stRadio"] div[role="radiogroup"] label p {
-            margin: 0 !important;
-            color: inherit !important;
-            -webkit-text-fill-color: inherit !important;
-            font-weight: 750 !important;
-        }
-
         /* Sidebar: mantém o menu simples, sem virar escala NPS */
         [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] {
             gap: 0 !important;
@@ -355,48 +299,67 @@ def apply_brand_css() -> None:
         }
 
 
+
         /* =========================================================
-           Formulário · separador fino dourado
-           Remove o aspecto de barra grossa/campo vazio antes das perguntas.
+           Correção final dos controles do formulário
+           - remove barras grossas/campos vazios do antigo radio
+           - usa segmented_control com visual de botões premium
+           - mantém apenas traço fino dourado acima da pergunta
            ========================================================= */
+
         .charth-question-rule {
             width: 100%;
-            height: 1px;
-            min-height: 1px;
-            background: #C8A24A;
-            border-radius: 999px;
-            opacity: .72;
-            margin: 2px 0 12px 0;
-            box-shadow: none;
+            height: 1px !important;
+            min-height: 1px !important;
+            max-height: 1px !important;
+            background: #C8A24A !important;
+            border: 0 !important;
+            border-radius: 999px !important;
+            box-shadow: none !important;
+            opacity: .82 !important;
+            margin: 2px 0 12px 0 !important;
+            padding: 0 !important;
         }
 
         .charth-question-label {
-            color: var(--charth-black);
-            -webkit-text-fill-color: var(--charth-black);
-            font-size: 14px;
-            font-weight: 750;
-            line-height: 1.35;
-            margin: 0 0 8px 0;
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+            font-size: 14px !important;
+            font-weight: 750 !important;
+            line-height: 1.35 !important;
+            margin: 0 0 8px 0 !important;
+            padding: 0 !important;
         }
 
         .charth-score-helper {
-            color: var(--charth-gray);
-            -webkit-text-fill-color: var(--charth-gray);
-            font-size: 10px;
-            font-weight: 650;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            margin: 0 0 8px 0;
+            color: var(--charth-gray) !important;
+            -webkit-text-fill-color: var(--charth-gray) !important;
+            font-size: 10px !important;
+            font-weight: 650 !important;
+            text-transform: uppercase !important;
+            letter-spacing: .08em !important;
+            margin: 0 0 8px 0 !important;
+            padding: 0 !important;
         }
 
-        /* Como o label da pergunta agora é HTML próprio, o radio fica sem rótulo nativo.
-           Esses ajustes impedem que o Streamlit gere barras/pílulas vazias. */
+        .charth-score-wrap {
+            background: #FFFDFC !important;
+            border: 1px solid rgba(109,110,113,.14) !important;
+            border-radius: 18px !important;
+            padding: 16px !important;
+            margin: 0 0 14px 0 !important;
+            box-shadow: 0 8px 22px rgba(31,31,31,.025) !important;
+        }
+
+        /* Se sobrar algum radio nativo no app, não pode virar pílula vazia */
         div[data-testid="stRadio"] > label,
         div[data-testid="stRadio"] > label > div,
         div[data-testid="stRadio"] > label p:empty {
             display: none !important;
             height: 0 !important;
             min-height: 0 !important;
+            max-height: 0 !important;
+            width: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
             border: 0 !important;
@@ -404,8 +367,65 @@ def apply_brand_css() -> None:
             box-shadow: none !important;
         }
 
-        div[data-testid="stRadio"] {
+        /* Segmented control: botões de nota e sim/não */
+        div[data-testid="stSegmentedControl"] {
             margin-top: 0 !important;
+        }
+
+        div[data-testid="stSegmentedControl"] > label {
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        div[data-testid="stSegmentedControl"] div[role="radiogroup"] {
+            gap: 6px !important;
+            flex-wrap: wrap !important;
+        }
+
+        div[data-testid="stSegmentedControl"] button {
+            border-radius: 999px !important;
+            border: 1px solid var(--charth-silver-line) !important;
+            background: #FFFDFC !important;
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+            min-height: 38px !important;
+            min-width: 42px !important;
+            padding: 0 14px !important;
+            box-shadow: 0 5px 14px rgba(31,31,31,.035) !important;
+            font-weight: 750 !important;
+        }
+
+        div[data-testid="stSegmentedControl"] button:hover {
+            background: var(--charth-rose-soft) !important;
+            border-color: var(--charth-rose) !important;
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+        }
+
+        div[data-testid="stSegmentedControl"] button[aria-pressed="true"],
+        div[data-testid="stSegmentedControl"] button[aria-selected="true"] {
+            background: var(--charth-black) !important;
+            border-color: var(--charth-black) !important;
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            box-shadow: 0 8px 20px rgba(31,31,31,.18) !important;
+        }
+
+        div[data-testid="stSegmentedControl"] button[aria-pressed="true"] *,
+        div[data-testid="stSegmentedControl"] button[aria-selected="true"] * {
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+        }
+
+        /* Observações com contraste */
+        textarea,
+        textarea:focus {
+            background: #FFFDFC !important;
+            border: 1px solid #D8D2CF !important;
+            box-shadow: 0 6px 18px rgba(31,31,31,.035) !important;
         }
 
         /* Botões */
