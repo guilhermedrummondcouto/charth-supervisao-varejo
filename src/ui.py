@@ -300,34 +300,33 @@ def apply_brand_css() -> None:
 
 
 
+
         /* =========================================================
-           Correção final dos controles do formulário
-           - remove barras grossas/campos vazios do antigo radio
-           - usa segmented_control com visual de botões premium
-           - mantém apenas traço fino dourado acima da pergunta
+           Formulário · controles premium CHARTH
+           Sem slider, sem segmented_control e sem vermelho.
+           Usa st.radio com aparência de botões de luxo.
            ========================================================= */
 
+        .charth-score-wrap {
+            background: #FFFDFC !important;
+            border: 1px solid rgba(109,110,113,.14) !important;
+            border-radius: 18px !important;
+            padding: 16px !important;
+            margin: 0 0 14px 0 !important;
+            box-shadow: 0 10px 24px rgba(31,31,31,.026) !important;
+        }
+
         .charth-question-rule {
-            width: 100%;
+            width: 100% !important;
             height: 1px !important;
             min-height: 1px !important;
             max-height: 1px !important;
-            background: #C8A24A !important;
+            background: linear-gradient(90deg, #C8A24A 0%, #E6D2A5 50%, #C8A24A 100%) !important;
             border: 0 !important;
             border-radius: 999px !important;
             box-shadow: none !important;
-            opacity: .82 !important;
+            opacity: .88 !important;
             margin: 2px 0 12px 0 !important;
-            padding: 0 !important;
-        }
-
-        .charth-question-label {
-            color: var(--charth-black) !important;
-            -webkit-text-fill-color: var(--charth-black) !important;
-            font-size: 14px !important;
-            font-weight: 750 !important;
-            line-height: 1.35 !important;
-            margin: 0 0 8px 0 !important;
             padding: 0 !important;
         }
 
@@ -342,82 +341,103 @@ def apply_brand_css() -> None:
             padding: 0 !important;
         }
 
-        .charth-score-wrap {
-            background: #FFFDFC !important;
-            border: 1px solid rgba(109,110,113,.14) !important;
-            border-radius: 18px !important;
-            padding: 16px !important;
-            margin: 0 0 14px 0 !important;
-            box-shadow: 0 8px 22px rgba(31,31,31,.025) !important;
-        }
-
-        /* Se sobrar algum radio nativo no app, não pode virar pílula vazia */
-        div[data-testid="stRadio"] > label,
-        div[data-testid="stRadio"] > label > div,
-        div[data-testid="stRadio"] > label p:empty {
-            display: none !important;
-            height: 0 !important;
+        /* Label da pergunta */
+        div[data-testid="stRadio"] > label {
+            display: block !important;
+            height: auto !important;
             min-height: 0 !important;
-            max-height: 0 !important;
-            width: 0 !important;
-            margin: 0 !important;
+            width: auto !important;
+            margin: 0 0 10px 0 !important;
             padding: 0 !important;
             border: 0 !important;
             background: transparent !important;
             box-shadow: none !important;
         }
 
-        /* Segmented control: botões de nota e sim/não */
-        div[data-testid="stSegmentedControl"] {
+        div[data-testid="stRadio"] > label p {
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+            font-size: 14px !important;
+            font-weight: 760 !important;
+            line-height: 1.35 !important;
+            margin: 0 !important;
+        }
+
+        /* Área dos botões */
+        div[data-testid="stRadio"] div[role="radiogroup"] {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            align-items: center !important;
             margin-top: 0 !important;
         }
 
-        div[data-testid="stSegmentedControl"] > label {
+        /* Cada opção vira botão */
+        div[data-testid="stRadio"] div[role="radiogroup"] label {
+            position: relative !important;
+            min-width: 44px !important;
+            height: 38px !important;
+            padding: 0 15px !important;
+            margin: 0 2px 6px 0 !important;
+            border: 1px solid #D8D2CF !important;
+            border-radius: 999px !important;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FFFDFC 100%) !important;
+            box-shadow: 0 5px 14px rgba(31,31,31,.035) !important;
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all .16s ease-in-out !important;
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
+            background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%) !important;
+            border-color: #C9A0A0 !important;
+            box-shadow: 0 7px 18px rgba(201,160,160,.22) !important;
+            transform: translateY(-1px);
+        }
+
+        /* Esconde o círculo nativo do radio para não aparecer vermelho */
+        div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
             display: none !important;
+            width: 0 !important;
             height: 0 !important;
-            min-height: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
         }
 
-        div[data-testid="stSegmentedControl"] div[role="radiogroup"] {
-            gap: 6px !important;
-            flex-wrap: wrap !important;
-        }
-
-        div[data-testid="stSegmentedControl"] button {
-            border-radius: 999px !important;
-            border: 1px solid var(--charth-silver-line) !important;
-            background: #FFFDFC !important;
+        div[data-testid="stRadio"] div[role="radiogroup"] label p {
+            margin: 0 !important;
             color: var(--charth-black) !important;
             -webkit-text-fill-color: var(--charth-black) !important;
-            min-height: 38px !important;
-            min-width: 42px !important;
-            padding: 0 14px !important;
-            box-shadow: 0 5px 14px rgba(31,31,31,.035) !important;
-            font-weight: 750 !important;
+            font-weight: 780 !important;
+            font-size: 14px !important;
+            line-height: 1 !important;
         }
 
-        div[data-testid="stSegmentedControl"] button:hover {
-            background: var(--charth-rose-soft) !important;
-            border-color: var(--charth-rose) !important;
-            color: var(--charth-black) !important;
-            -webkit-text-fill-color: var(--charth-black) !important;
+        /* Selecionado: rosê + dourado, sem vermelho em nenhuma hipótese */
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+            background: linear-gradient(135deg, #C9A0A0 0%, #E7CFA2 100%) !important;
+            border: 1px solid #C8A24A !important;
+            box-shadow:
+                inset 0 0 0 1px rgba(255,255,255,.55),
+                0 8px 20px rgba(185,133,133,.26),
+                0 2px 0 rgba(200,162,74,.35) !important;
         }
 
-        div[data-testid="stSegmentedControl"] button[aria-pressed="true"],
-        div[data-testid="stSegmentedControl"] button[aria-selected="true"] {
-            background: var(--charth-black) !important;
-            border-color: var(--charth-black) !important;
-            color: #FFFFFF !important;
-            -webkit-text-fill-color: #FFFFFF !important;
-            box-shadow: 0 8px 20px rgba(31,31,31,.18) !important;
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p,
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) * {
+            color: #1F1F1F !important;
+            -webkit-text-fill-color: #1F1F1F !important;
+            font-weight: 850 !important;
         }
 
-        div[data-testid="stSegmentedControl"] button[aria-pressed="true"] *,
-        div[data-testid="stSegmentedControl"] button[aria-selected="true"] * {
-            color: #FFFFFF !important;
-            -webkit-text-fill-color: #FFFFFF !important;
+        /* Neutraliza qualquer cor de tema nos radios */
+        div[data-testid="stRadio"] input,
+        div[data-testid="stRadio"] * {
+            accent-color: #C9A0A0 !important;
         }
 
         /* Observações com contraste */
@@ -426,6 +446,44 @@ def apply_brand_css() -> None:
             background: #FFFDFC !important;
             border: 1px solid #D8D2CF !important;
             box-shadow: 0 6px 18px rgba(31,31,31,.035) !important;
+        }
+
+        /* Sidebar: restaura radio de menu para não virar botão premium */
+        [data-testid="stSidebar"] div[data-testid="stRadio"] > label {
+            display: block !important;
+            margin: 0 0 6px 0 !important;
+        }
+
+        [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] {
+            display: block !important;
+            gap: 0 !important;
+            flex-wrap: nowrap !important;
+        }
+
+        [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label {
+            min-width: unset !important;
+            height: auto !important;
+            padding: 2px 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            display: flex !important;
+            justify-content: flex-start !important;
+            transform: none !important;
+        }
+
+        [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
+            display: flex !important;
+            width: auto !important;
+            height: auto !important;
+        }
+
+        [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
         }
 
         /* Botões */
