@@ -20,7 +20,7 @@ OBSERVATION_LABELS = {
     "observacoes_gestao_gerente": "Gestão da Gerente",
     "observacoes_estrutura_loja": "Estrutura da Loja",
 
-    # Compatibilidade com avaliações antigas, caso existam no banco:
+    # compatibilidade com avaliações antigas
     "observacoes_experiencia_cliente": "Experiência da Cliente",
     "observacoes_experiencia_premium": "Experiência Premium",
 }
