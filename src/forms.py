@@ -1,8 +1,9 @@
 from __future__ import annotations
 from datetime import date
 import streamlit as st
+from html import escape
 from .calculations import compute_bonus, compute_section_scores, compute_weighted_score, status_from_weighted
-from .config import DNA_OPTIONS, FORM_SECTIONS, STORES, STRATEGIC_FIELDS
+from .config import DNA_OPTIONS, FORM_SECTIONS, MANAGERS, STORES, STRATEGIC_FIELDS
 from .db import insert_evaluation, save_uploaded_file
 from .ui import header
 
@@ -23,36 +24,46 @@ def _section_header(number: int, title: str, description: str = "Avaliação ofi
 def score_input(question: dict, section_name: str) -> float:
     key = f"score_{section_name}_{question['key']}"
     qtype = question["type"]
+    label = escape(question["label"])
 
     st.markdown('<div class="charth-score-wrap">', unsafe_allow_html=True)
+    st.markdown('<div class="charth-question-rule"></div>', unsafe_allow_html=True)
+    st.markdown(f"<div class='charth-question-label'>{label}</div>", unsafe_allow_html=True)
 
     if qtype == "score":
-        st.markdown("<div class='charth-score-helper'>Escala de 1 a 10</div>", unsafe_allow_html=True)
+        st.markdown("<div class='charth-score-helper'>escala de 1 a 10</div>", unsafe_allow_html=True)
         val = st.radio(
-            question["label"],
+            "nota",
             options=list(range(1, 11)),
             index=9,
             horizontal=True,
             key=key,
-            label_visibility="visible",
+            label_visibility="collapsed",
         )
         st.markdown("</div>", unsafe_allow_html=True)
         return float(val)
 
     if qtype == "binary":
-        st.markdown("<div class='charth-score-helper'>Resposta binária: Sim = 10 · Não = 0</div>", unsafe_allow_html=True)
-        val = st.radio(question["label"], options=["Sim", "Não"], horizontal=True, key=key)
+        st.markdown("<div class='charth-score-helper'>resposta binária: sim = 10 · não = 0</div>", unsafe_allow_html=True)
+        val = st.radio(
+            "resposta",
+            options=["Sim", "Não"],
+            horizontal=True,
+            key=key,
+            label_visibility="collapsed",
+        )
         st.markdown("</div>", unsafe_allow_html=True)
         return 10.0 if val == "Sim" else 0.0
 
     if qtype == "binary_inverse":
-        st.markdown("<div class='charth-score-helper'>Resposta binária: Não = 10 · Sim = 0</div>", unsafe_allow_html=True)
+        st.markdown("<div class='charth-score-helper'>resposta binária: não = 10 · sim = 0</div>", unsafe_allow_html=True)
         val = st.radio(
-            question["label"],
+            "resposta",
             options=["Não", "Sim"],
             horizontal=True,
             key=key,
             help="Não = 10, Sim = 0",
+            label_visibility="collapsed",
         )
         st.markdown("</div>", unsafe_allow_html=True)
         return 10.0 if val == "Não" else 0.0
@@ -69,7 +80,7 @@ def render_evaluation_form(user: dict) -> None:
             <div class="charth-form-hero-title">Avaliação Supervisão Varejo</div>
             <div class="charth-form-hero-subtitle">
                 Preencha com atenção aos detalhes. A avaliação consolida atendimento, VM, resultados, gestão e experiência da cliente,
-                preservando o padrão premium e atemporal da CHARTH.
+                preservando o padrão premium, atemporal e o acompanhamento operacional da CHARTH.
             </div>
         </div>
         """,
@@ -84,11 +95,7 @@ def render_evaluation_form(user: dict) -> None:
                 evaluation_date = st.date_input("Data", value=date.today())
                 supervisor = st.text_input("Supervisora", value=user.get("name", "") if user.get("role") == "supervisora" else "")
             with c2:
-                manager = st.selectbox(
-                    "Gerente de Loja",
-                    ["Natasha", "Jéssica", "Ingrid", "Fernanda"],
-                    index=1,
-                )
+                manager = st.selectbox("Gerente de Loja", MANAGERS)
                 store = st.selectbox("Loja", STORES)
 
         scores: dict[str, float] = {}
