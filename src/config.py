@@ -5,6 +5,7 @@ DB_PATH = "charth_supervisao_v6.db"
 UPLOAD_DIR = "uploads"
 
 STORES = ["Cidade Jardim", "Vila da Serra", "Diamond", "Barigui"]
+MANAGERS = ["Natasha", "Jéssica", "Ingrid", "Fernanda"]
 
 # Perfis
 ROLE_ADMIN = "admin"
@@ -21,28 +22,30 @@ DEFAULT_USERS = [
     {"username": "gestora_barigui", "password": "charth123", "role": ROLE_GESTORA, "store": "Barigui", "name": "Gestora Barigui"},
 ]
 
+# Média ponderada principal.
+# Experiência da Cliente e Experiência Premium foram unificadas em uma seção única.
 WEIGHTS = {
     "Equipe e Atendimento": 1,
     "Visual Merchandising": 1,
     "Estoque e Produto": 1,
     "Resultados e Indicadores": 2,
-    "Experiência da Cliente": 1,
+    "Experiência da Cliente e Padrão Premium": 1,
     "Gestão da Gerente": 2,
 }
 
 # Seções fora da média ponderada principal, mas mantidas no formulário e dashboard.
-NON_WEIGHTED_SECTIONS = ["WhatsApp e Vendas Digitais", "Estrutura da Loja", "Experiência Premium"]
+NON_WEIGHTED_SECTIONS = ["WhatsApp e Vendas Digitais", "Estrutura da Loja"]
 
 # Regras de bonificação configuráveis.
 BONUS_CONFIG = {
-    "silver_manager_value_option": 2000.0,  # briefing menciona 3700 ou 2000; altere aqui se optar por 3700.
+    "silver_manager_value_option": 2000.0,
     "bronze_manager_value_option": 2000.0,
     "gold_team_fund_percent": 0.01,
     "gold_sales_team_percent": 0.75,
     "gold_support_team_percent": 0.25,
     "gold_sales_equal_percent": 0.40,
     "gold_sales_individual_sales_percent": 0.60,
-    "bronze_min_weighted_score": 7.50,  # critério não definido no briefing; mantido como constante explícita.
+    "bronze_min_weighted_score": 7.50,
     "gold": {
         "min_weighted_score": 8.50,
         "min_results": 8.80,
@@ -59,18 +62,19 @@ BONUS_CONFIG = {
     },
 }
 
-# Campos do formulário. type = score (1-10), binary (Sim=10/Não=0), note, text, select.
+# Campos do formulário. type = score (1-10), binary (Sim=10/Não=0), binary_inverse (Não=10/Sim=0).
 FORM_SECTIONS = [
     {
         "name": "Equipe e Atendimento",
         "observation_key": "observacoes_equipe_atendimento",
         "questions": [
-            {"key": "postura_uniforme_apresentacao", "label": "Postura, uniforme e apresentação pessoal adequados?", "type": "score"},
-            {"key": "atendimento_consultivo", "label": "Atendimento consultivo, escuta ativa e solução?", "type": "score"},
-            {"key": "oferecem_look_completo", "label": "Oferecem look completo, venda adicional?", "type": "score"},
-            {"key": "atendimento_personalizado", "label": "Atendimento personalizado, chama cliente pelo nome?", "type": "score"},
-            {"key": "senso_de_dono", "label": "Time demonstra senso de dono?", "type": "score"},
-            {"key": "equipe_engajada_salao", "label": "Equipe engajada no salão, energia ativa?", "type": "score"},
+            {"key": "postura_uniforme_apresentacao", "label": "A equipe está com postura, uniforme e apresentação pessoal adequados?", "type": "score"},
+            {"key": "atendimento_consultivo", "label": "A equipe pratica atendimento consultivo, com escuta ativa e solução?", "type": "score"},
+            {"key": "oferecem_look_completo", "label": "A equipe oferece look completo, estimulando venda adicional?", "type": "score"},
+            {"key": "atendimento_personalizado", "label": "A equipe realiza atendimento personalizado, chamando a cliente pelo nome?", "type": "score"},
+            {"key": "senso_de_dono", "label": "A equipe demonstra senso de dono na rotina da loja?", "type": "score"},
+            {"key": "equipe_engajada_salao", "label": "A equipe está engajada no salão, com energia ativa?", "type": "score"},
+            {"key": "clima_organizacional", "label": "O clima entre a equipe favorece colaboração, respeito e boa convivência?", "type": "score"},
         ],
     },
     {
@@ -78,73 +82,82 @@ FORM_SECTIONS = [
         "observation_key": "observacoes_vm",
         "photo_key": "foto_vm",
         "questions": [
-            {"key": "pecas_foco_evidenciadas", "label": "Peças foco da semana estão evidenciadas?", "type": "score"},
-            {"key": "preco_visivel_sem_poluicao", "label": "Preço visível sem poluição visual?", "type": "score"},
-            {"key": "iluminacao_valoriza_produtos", "label": "Iluminação valoriza os produtos?", "type": "score"},
-            {"key": "manequins_bem_montados", "label": "Manequins bem montados, styling estratégico?", "type": "score"},
-            {"key": "vitrine_gera_desejo", "label": "Vitrine gera desejo real?", "type": "score"},
-            {"key": "pecas_passadas_repostas", "label": "As peças estão bem passadas e repostas?", "type": "score"},
+            {"key": "pecas_semana_evidenciadas", "label": "As peças da semana estão evidenciadas?", "type": "binary"},
+            {"key": "preco_visivel_sem_poluicao", "label": "Os preços estão visíveis, sem poluição visual?", "type": "binary"},
+            {"key": "manequins_bem_montados", "label": "Os manequins estão bem montados, com styling estratégico?", "type": "binary"},
+            {"key": "vitrine_gera_desejo", "label": "A vitrine gera desejo real de compra?", "type": "binary"},
+            {"key": "pecas_passadas_repostas", "label": "As peças estão bem passadas e repostas?", "type": "binary"},
+            {"key": "araras_penteadas", "label": "As araras estão penteadas?", "type": "binary"},
         ],
     },
     {
         "name": "Estoque e Produto",
         "observation_key": "observacoes_estoque_produto",
+        "photo_key": "foto_estoque_produto",
         "questions": [
-            {"key": "estoque_organizado_limpo", "label": "Estoque organizado e limpo?", "type": "score"},
-            {"key": "reposicao_agil_salao", "label": "Reposição ágil no salão?", "type": "score"},
-            {"key": "ruptura_best_sellers", "label": "Ruptura de best sellers?", "type": "score"},
-            {"key": "pecas_defeito_separadas", "label": "Peças com defeito separadas corretamente?", "type": "score"},
-            {"key": "estoque_remanejado_solicitacoes", "label": "Estoque foi remanejado com as solicitações?", "type": "score"},
+            {"key": "estoque_organizado_limpo", "label": "O estoque está organizado e limpo?", "type": "binary"},
+            {"key": "reposicao_agil_salao", "label": "A reposição no salão está sendo feita com agilidade?", "type": "binary"},
+            {"key": "ruptura_best_sellers", "label": "A loja está sem ruptura de best sellers?", "type": "binary"},
+            {"key": "pecas_defeito_separadas", "label": "As peças com defeito estão separadas corretamente?", "type": "binary"},
+            {"key": "transferencias_solicitadas_em_dia", "label": "As transferências solicitadas estão em dia?", "type": "binary"},
         ],
     },
     {
         "name": "Resultados e Indicadores",
         "observation_key": "observacoes_resultados",
         "questions": [
-            {"key": "time_conhece_meta_diaria", "label": "Time conhece a meta diária?", "type": "score"},
-            {"key": "meta_semanal_acompanhada", "label": "Meta semanal é acompanhada diariamente?", "type": "score"},
-            {"key": "gerente_plano_acao_abaixo_meta", "label": "Gerente apresenta plano de ação quando abaixo da meta?", "type": "score"},
-            {"key": "ticket_medio_meta", "label": "Ticket médio está dentro da meta?", "type": "score"},
-            {"key": "pa_meta", "label": "Produto por atendimento (PA) dentro da meta?", "type": "score"},
-            {"key": "conversao_monitorada", "label": "Conversão é monitorada diariamente?", "type": "score"},
+            {"key": "time_conhece_meta_diaria", "label": "A equipe conhece a meta diária?", "type": "binary"},
+            {"key": "meta_semanal_acompanhada", "label": "A meta semanal é acompanhada diariamente?", "type": "binary"},
+            {"key": "gerente_plano_acao_abaixo_meta", "label": "A gerente apresenta plano de ação quando a loja está abaixo da meta?", "type": "binary"},
+            {"key": "ticket_medio_meta", "label": "O ticket médio está dentro da meta?", "type": "binary"},
+            {"key": "pa_meta", "label": "O produto por atendimento (PA) está dentro da meta?", "type": "binary"},
+            {"key": "conversao_monitorada", "label": "A conversão é monitorada diariamente?", "type": "binary"},
         ],
     },
     {
-        "name": "Experiência da Cliente",
-        "observation_key": "observacoes_experiencia_cliente",
+        "name": "Experiência da Cliente e Padrão Premium",
+        "observation_key": "observacoes_experiencia_cliente_premium",
         "questions": [
-            {"key": "loja_limpa", "label": "Loja limpa, salão, provadores e caixa?", "type": "score"},
-            {"key": "provadores_impecaveis", "label": "Provadores estão impecáveis?", "type": "score"},
-            {"key": "cliente_sugestao_look", "label": "Cliente recebe sugestão de look completo?", "type": "score"},
-            {"key": "embalagem_padrao_charth", "label": "Embalagem está alinhada ao padrão Charth?", "type": "score"},
-            {"key": "posicionamento_muitocharth", "label": "A loja transmite posicionamento #MuitoCharth?", "type": "score"},
+            {"key": "loja_limpa", "label": "A loja está limpa, incluindo salão, provadores e caixa?", "type": "binary"},
+            {"key": "provadores_impecaveis", "label": "Os provadores estão impecáveis?", "type": "binary"},
+            {"key": "cliente_sugestao_look", "label": "A cliente recebe sugestão de look completo?", "type": "binary"},
+            {"key": "cliente_sugestao_variedade_cor", "label": "A cliente recebe sugestão de variedade de cor?", "type": "binary"},
+            {"key": "embalagem_padrao_charth", "label": "A embalagem está alinhada ao padrão Charth?", "type": "binary"},
+            {"key": "bala_charth_disponivel", "label": "A bala Charth está disponível?", "type": "binary"},
+            {"key": "brigadeiro_charth_disponivel", "label": "O brigadeiro Charth está disponível?", "type": "binary"},
+            {"key": "bebidas_personalizadas_disponiveis", "label": "As bebidas personalizadas estão disponíveis?", "type": "binary"},
+            {"key": "personalizados_armazenados", "label": "Os personalizados estão armazenados corretamente?", "type": "binary"},
+            {"key": "itens_oferecidos_ativamente", "label": "Os itens de experiência são oferecidos ativamente?", "type": "binary"},
+            {"key": "servico_elegancia", "label": "O serviço é feito com elegância, usando bandeja ou apresentação adequada?", "type": "binary"},
+            {"key": "experiencia_exclusividade", "label": "A experiência transmite exclusividade?", "type": "binary"},
+            {"key": "insumos_adequados", "label": "Todos os insumos estão adequados?", "type": "binary"},
         ],
     },
     {
         "name": "WhatsApp e Vendas Digitais",
         "observation_key": "observacoes_whatsapp",
         "questions": [
-            {"key": "responde_ate_10_min", "label": "Responde mensagens em até 10 minutos?", "type": "score"},
-            {"key": "responsavel_turno_whatsapp", "label": "Existe responsável definido por turno?", "type": "score"},
-            {"key": "conversas_organizadas", "label": "Conversas organizadas e acompanhadas?", "type": "score"},
-            {"key": "fotos_padrao_charth", "label": "Fotos seguem padrão Charth?", "type": "score"},
-            {"key": "busca_ativa_whatsapp", "label": "Busca ativa via WhatsApp?", "type": "score"},
-            {"key": "novidades_semanais", "label": "Enviam novidades semanalmente?", "type": "score"},
-            {"key": "pos_venda_whatsapp_24h", "label": "Pós-venda via WhatsApp em até 24h?", "type": "score"},
-            {"key": "recupera_negociacoes", "label": "Recuperam negociações não fechadas?", "type": "score"},
+            {"key": "responde_ate_10_min", "label": "As mensagens são respondidas em até 10 minutos?", "type": "binary"},
+            {"key": "responsavel_turno_whatsapp", "label": "Existe responsável definido por turno para o WhatsApp?", "type": "binary"},
+            {"key": "conversas_organizadas", "label": "As conversas estão organizadas e acompanhadas?", "type": "binary"},
+            {"key": "fotos_padrao_charth", "label": "As fotos seguem o padrão Charth?", "type": "binary"},
+            {"key": "busca_ativa_whatsapp", "label": "A loja realiza busca ativa via WhatsApp?", "type": "binary"},
+            {"key": "novidades_semanais", "label": "A loja envia novidades semanalmente?", "type": "binary"},
+            {"key": "pos_venda_whatsapp_24h", "label": "O pós-venda via WhatsApp é feito em até 24h?", "type": "binary"},
+            {"key": "recupera_negociacoes", "label": "A loja recupera negociações não fechadas?", "type": "binary"},
         ],
     },
     {
         "name": "Gestão da Gerente",
         "observation_key": "observacoes_gestao_gerente",
         "questions": [
-            {"key": "reuniao_diaria_registrada", "label": "Reunião diária realizada e registrada?", "type": "score"},
-            {"key": "feedback_individual_mes", "label": "Feedback individual realizado no mês?", "type": "score"},
-            {"key": "plano_acao_documentado", "label": "Plano de ação documentado?", "type": "score"},
-            {"key": "escala_organizada", "label": "Escala organizada estrategicamente?", "type": "score"},
-            {"key": "lideranca_inspira", "label": "Liderança inspira respeito e resultado?", "type": "score"},
-            {"key": "gerente_acompanha_vendas", "label": "Gerente acompanha vendas no salão?", "type": "score"},
-            {"key": "amostragem_livro_fiscal", "label": "Amostragem de lançamento do livro fiscal está correta?", "type": "binary"},
+            {"key": "reuniao_diaria_registrada", "label": "A reunião diária é realizada e registrada?", "type": "binary"},
+            {"key": "feedback_individual_mes", "label": "O feedback individual foi realizado no mês?", "type": "binary"},
+            {"key": "plano_acao_documentado", "label": "O plano de ação está documentado?", "type": "binary"},
+            {"key": "escala_organizada", "label": "A escala está organizada estrategicamente?", "type": "binary"},
+            {"key": "lideranca_inspira", "label": "A liderança inspira respeito e resultado?", "type": "binary"},
+            {"key": "gerente_acompanha_vendas", "label": "A gerente acompanha as vendas no salão?", "type": "binary"},
+            {"key": "amostragem_livro_fiscal", "label": "A amostragem de lançamento do livro fiscal está correta?", "type": "binary"},
         ],
     },
     {
@@ -153,27 +166,13 @@ FORM_SECTIONS = [
         "questions": [
             {"key": "lampadas_queimadas", "label": "Existem lâmpadas queimadas?", "type": "binary_inverse"},
             {"key": "moveis_equipamentos_danificados", "label": "Existem móveis ou equipamentos quebrados/danificados?", "type": "binary_inverse"},
-            {"key": "pintura_acabamentos_conservados", "label": "Pintura e acabamentos conservados?", "type": "binary"},
-            {"key": "ar_condicionado_funcionando", "label": "Ar-condicionado funcionando?", "type": "binary"},
-            {"key": "som_ambiente_adequado", "label": "Som ambiente adequado?", "type": "binary"},
-            {"key": "fachada_limpa_cuidada", "label": "Fachada limpa e bem cuidada?", "type": "binary"},
-            {"key": "comunicacao_visual_sem_danos", "label": "Comunicação visual sem danos?", "type": "score"},
-            {"key": "loucas_personalizadas_perfeitas", "label": "Louças personalizadas em perfeito estado?", "type": "binary"},
+            {"key": "pintura_acabamentos_conservados", "label": "A pintura e os acabamentos estão conservados?", "type": "binary"},
+            {"key": "ar_condicionado_funcionando", "label": "O ar-condicionado está funcionando?", "type": "binary"},
+            {"key": "som_ambiente_adequado", "label": "O som ambiente está adequado?", "type": "binary"},
+            {"key": "fachada_limpa_cuidada", "label": "A fachada está limpa e bem cuidada?", "type": "binary"},
+            {"key": "comunicacao_visual_sem_danos", "label": "A comunicação visual está sem danos?", "type": "binary"},
+            {"key": "loucas_personalizadas_perfeitas", "label": "As louças personalizadas estão em perfeito estado?", "type": "binary"},
             {"key": "mascaras_provadores", "label": "Há máscaras em todos os provadores?", "type": "binary"},
-        ],
-    },
-    {
-        "name": "Experiência Premium",
-        "observation_key": "observacoes_experiencia_premium",
-        "questions": [
-            {"key": "bala_charth_disponivel", "label": "Bala Charth disponível?", "type": "binary"},
-            {"key": "brigadeiro_charth_disponivel", "label": "Brigadeiro Charth disponível?", "type": "binary"},
-            {"key": "bebidas_personalizadas_disponiveis", "label": "Bebidas personalizadas disponíveis?", "type": "binary"},
-            {"key": "personalizados_armazenados", "label": "Personalizados armazenados corretamente?", "type": "binary"},
-            {"key": "itens_oferecidos_ativamente", "label": "Itens oferecidos ativamente?", "type": "score"},
-            {"key": "servico_elegancia", "label": "Serviço com elegância, bandeja ou apresentação?", "type": "binary"},
-            {"key": "experiencia_exclusividade", "label": "Experiência transmite exclusividade?", "type": "binary"},
-            {"key": "insumos_adequados", "label": "Todos os insumos adequados?", "type": "binary"},
         ],
     },
 ]
@@ -227,12 +226,7 @@ BONUS_RULES = {
         "min_weighted_score": 7.5,
         "min_block": 7.0,
     },
-    # Regra padrão selecionada no menu Bonificação.
-    # Opções: "gold_strict" ou "gold_standard".
     "default_gold_rule": "gold_strict",
-    # Escopo da menor nota de bloco para elegibilidade.
-    # "all_sections" = considera todas as seções avaliativas.
-    # "weighted_sections" = considera apenas Equipe, VM, Estoque, Resultado, Experiência e Gestão.
     "min_block_scope": "all_sections",
     "team_fund_percent": 0.01,
     "team_sales_percent": 0.75,
