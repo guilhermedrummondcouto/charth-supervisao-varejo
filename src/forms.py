@@ -32,41 +32,43 @@ def score_input(question: dict, section_name: str) -> float:
 
     if qtype == "score":
         st.markdown("<div class='charth-score-helper'>escala de 1 a 10</div>", unsafe_allow_html=True)
-        val = st.radio(
+        val = st.segmented_control(
             "nota",
             options=list(range(1, 11)),
-            index=9,
-            horizontal=True,
+            default=10,
             key=key,
+            selection_mode="single",
             label_visibility="collapsed",
         )
         st.markdown("</div>", unsafe_allow_html=True)
-        return float(val)
+        return float(val if val is not None else 10)
 
     if qtype == "binary":
         st.markdown("<div class='charth-score-helper'>resposta binária: sim = 10 · não = 0</div>", unsafe_allow_html=True)
-        val = st.radio(
+        val = st.segmented_control(
             "resposta",
             options=["Sim", "Não"],
-            horizontal=True,
+            default="Sim",
             key=key,
+            selection_mode="single",
             label_visibility="collapsed",
         )
         st.markdown("</div>", unsafe_allow_html=True)
-        return 10.0 if val == "Sim" else 0.0
+        return 10.0 if (val or "Sim") == "Sim" else 0.0
 
     if qtype == "binary_inverse":
         st.markdown("<div class='charth-score-helper'>resposta binária: não = 10 · sim = 0</div>", unsafe_allow_html=True)
-        val = st.radio(
+        val = st.segmented_control(
             "resposta",
             options=["Não", "Sim"],
-            horizontal=True,
+            default="Não",
             key=key,
-            help="Não = 10, Sim = 0",
+            selection_mode="single",
             label_visibility="collapsed",
+            help="Não = 10, Sim = 0",
         )
         st.markdown("</div>", unsafe_allow_html=True)
-        return 10.0 if val == "Não" else 0.0
+        return 10.0 if (val or "Não") == "Não" else 0.0
 
     st.markdown("</div>", unsafe_allow_html=True)
     raise ValueError(f"Tipo desconhecido: {qtype}")
@@ -100,7 +102,7 @@ def render_evaluation_form(user: dict) -> None:
 
         scores: dict[str, float] = {}
         observations: dict[str, str] = {}
-        photo_vm = None
+        photo_uploads: dict[str, object] = {}
         for idx, section in enumerate(FORM_SECTIONS, start=2):
             _section_header(idx, section["name"])
             with st.container(border=True):
@@ -111,8 +113,13 @@ def render_evaluation_form(user: dict) -> None:
                         with col:
                             scores[q["key"]] = score_input(q, section["name"])
                 if section.get("photo_key"):
+                    photo_key = section["photo_key"]
                     st.markdown("#### Evidência visual")
-                    photo_vm = st.file_uploader("Enviar foto, caso necessário", type=["png", "jpg", "jpeg", "webp"], key="foto_vm_upload")
+                    photo_uploads[photo_key] = st.file_uploader(
+                        "Enviar foto, caso necessário",
+                        type=["png", "jpg", "jpeg", "webp"],
+                        key=f"upload_{photo_key}",
+                    )
                 observations[section["observation_key"]] = st.text_area(
                     f"Observações {section['name']}", key=f"obs_{section['observation_key']}", height=100,
                     placeholder="Registre aqui os principais pontos observados, combinados e oportunidades de evolução."
@@ -136,7 +143,17 @@ def render_evaluation_form(user: dict) -> None:
         weighted_score = compute_weighted_score(section_scores)
         overall_status = status_from_weighted(weighted_score)
         bonus = compute_bonus(section_scores, weighted_score, grave_issue)
-        photo_path = save_uploaded_file(photo_vm, f"{store}_vm") if photo_vm else None
+        evidence_paths: dict[str, str] = {}
+        for photo_key, uploaded_file in photo_uploads.items():
+            if uploaded_file:
+                path = save_uploaded_file(uploaded_file, f"{store}_{photo_key}")
+                if path:
+                    evidence_paths[photo_key] = path
+
+        if evidence_paths:
+            strategic["evidencias_visuais"] = evidence_paths
+
+        photo_path = evidence_paths.get("foto_vm")
         evaluation_id = insert_evaluation(
             {
                 "evaluation_date": evaluation_date.isoformat(),
