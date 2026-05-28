@@ -24,51 +24,50 @@ def _section_header(number: int, title: str, description: str = "Avaliação ofi
 def score_input(question: dict, section_name: str) -> float:
     key = f"score_{section_name}_{question['key']}"
     qtype = question["type"]
-    label = escape(question["label"])
+    label = question["label"]
 
     st.markdown('<div class="charth-score-wrap">', unsafe_allow_html=True)
     st.markdown('<div class="charth-question-rule"></div>', unsafe_allow_html=True)
-    st.markdown(f"<div class='charth-question-label'>{label}</div>", unsafe_allow_html=True)
 
     if qtype == "score":
         st.markdown("<div class='charth-score-helper'>escala de 1 a 10</div>", unsafe_allow_html=True)
-        val = st.segmented_control(
-            "nota",
+        val = st.radio(
+            label,
             options=list(range(1, 11)),
-            default=10,
+            index=9,
+            horizontal=True,
             key=key,
-            selection_mode="single",
-            label_visibility="collapsed",
+            label_visibility="visible",
         )
         st.markdown("</div>", unsafe_allow_html=True)
-        return float(val if val is not None else 10)
+        return float(val)
 
     if qtype == "binary":
         st.markdown("<div class='charth-score-helper'>resposta binária: sim = 10 · não = 0</div>", unsafe_allow_html=True)
-        val = st.segmented_control(
-            "resposta",
+        val = st.radio(
+            label,
             options=["Sim", "Não"],
-            default="Sim",
+            index=0,
+            horizontal=True,
             key=key,
-            selection_mode="single",
-            label_visibility="collapsed",
+            label_visibility="visible",
         )
         st.markdown("</div>", unsafe_allow_html=True)
-        return 10.0 if (val or "Sim") == "Sim" else 0.0
+        return 10.0 if val == "Sim" else 0.0
 
     if qtype == "binary_inverse":
         st.markdown("<div class='charth-score-helper'>resposta binária: não = 10 · sim = 0</div>", unsafe_allow_html=True)
-        val = st.segmented_control(
-            "resposta",
+        val = st.radio(
+            label,
             options=["Não", "Sim"],
-            default="Não",
+            index=0,
+            horizontal=True,
             key=key,
-            selection_mode="single",
-            label_visibility="collapsed",
             help="Não = 10, Sim = 0",
+            label_visibility="visible",
         )
         st.markdown("</div>", unsafe_allow_html=True)
-        return 10.0 if (val or "Não") == "Não" else 0.0
+        return 10.0 if val == "Não" else 0.0
 
     st.markdown("</div>", unsafe_allow_html=True)
     raise ValueError(f"Tipo desconhecido: {qtype}")
