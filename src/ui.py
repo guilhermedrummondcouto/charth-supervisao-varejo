@@ -336,6 +336,78 @@ def apply_brand_css() -> None:
             -webkit-text-fill-color: var(--charth-black) !important;
         }
 
+
+        /* Campos de observação: contraste mais claro e visível */
+        .stTextArea textarea,
+        textarea[data-testid="stTextArea"] {
+            background: #FFFDFC !important;
+            border: 1px solid rgba(201,160,160,.42) !important;
+            box-shadow: 0 8px 22px rgba(31,31,31,.035) !important;
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+        }
+
+        .stTextArea textarea:focus,
+        textarea[data-testid="stTextArea"]:focus {
+            border-color: var(--charth-rose-deep) !important;
+            box-shadow: 0 0 0 2px rgba(201,160,160,.20) !important;
+            outline: none !important;
+        }
+
+
+        /* =========================================================
+           Formulário · separador fino dourado
+           Remove o aspecto de barra grossa/campo vazio antes das perguntas.
+           ========================================================= */
+        .charth-question-rule {
+            width: 100%;
+            height: 1px;
+            min-height: 1px;
+            background: #C8A24A;
+            border-radius: 999px;
+            opacity: .72;
+            margin: 2px 0 12px 0;
+            box-shadow: none;
+        }
+
+        .charth-question-label {
+            color: var(--charth-black);
+            -webkit-text-fill-color: var(--charth-black);
+            font-size: 14px;
+            font-weight: 750;
+            line-height: 1.35;
+            margin: 0 0 8px 0;
+        }
+
+        .charth-score-helper {
+            color: var(--charth-gray);
+            -webkit-text-fill-color: var(--charth-gray);
+            font-size: 10px;
+            font-weight: 650;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin: 0 0 8px 0;
+        }
+
+        /* Como o label da pergunta agora é HTML próprio, o radio fica sem rótulo nativo.
+           Esses ajustes impedem que o Streamlit gere barras/pílulas vazias. */
+        div[data-testid="stRadio"] > label,
+        div[data-testid="stRadio"] > label > div,
+        div[data-testid="stRadio"] > label p:empty {
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        div[data-testid="stRadio"] {
+            margin-top: 0 !important;
+        }
+
         /* Botões */
         .stButton > button {
             border-radius: 999px;
@@ -410,6 +482,15 @@ def apply_brand_css() -> None:
             -webkit-text-fill-color: var(--charth-black) !important;
             fill: var(--charth-black) !important;
             stroke: var(--charth-black) !important;
+        }
+
+
+        /* Observações com mais contraste */
+        textarea,
+        textarea:focus {
+            background: #FFFDFC !important;
+            border: 1px solid #D8D2CF !important;
+            box-shadow: 0 6px 18px rgba(31,31,31,.035) !important;
         }
 
         .dataframe {
