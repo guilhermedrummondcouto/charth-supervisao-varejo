@@ -694,6 +694,122 @@ def apply_brand_css() -> None:
                 stroke: var(--charth-black) !important;
             }
         }
+
+        /* =========================================================
+           HOTFIX DEFINITIVO: remove barras brancas dos radios
+           Causa: o CSS global de input estava estilizando os inputs
+           invisíveis do st.radio como campos arredondados.
+           ========================================================= */
+
+        div[data-testid="stRadio"] input[type="radio"],
+        div[data-testid="stRadio"] input[type="checkbox"] {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            position: absolute !important;
+            opacity: 0 !important;
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            max-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            outline: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            pointer-events: none !important;
+            overflow: hidden !important;
+        }
+
+        div[data-testid="stRadio"] input[type="radio"]::before,
+        div[data-testid="stRadio"] input[type="radio"]::after {
+            display: none !important;
+            content: none !important;
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] input,
+        div[data-testid="stRadio"] div[role="radiogroup"] input + div,
+        div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            min-width: 0 !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] label {
+            position: relative !important;
+            min-width: 46px !important;
+            height: 40px !important;
+            padding: 0 16px !important;
+            margin: 0 4px 8px 0 !important;
+            border: 1px solid #D8D2CF !important;
+            border-radius: 999px !important;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FFFDFC 100%) !important;
+            box-shadow: 0 6px 15px rgba(31,31,31,.045) !important;
+            color: #1F1F1F !important;
+            -webkit-text-fill-color: #1F1F1F !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all .16s ease-in-out !important;
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
+            background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%) !important;
+            border-color: #C9A0A0 !important;
+            box-shadow: 0 8px 20px rgba(201,160,160,.22) !important;
+            transform: translateY(-1px);
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+            background: linear-gradient(135deg, #C9A0A0 0%, #E7CFA2 100%) !important;
+            border: 1px solid #C8A24A !important;
+            box-shadow:
+                inset 0 0 0 1px rgba(255,255,255,.55),
+                0 9px 22px rgba(185,133,133,.27),
+                0 2px 0 rgba(200,162,74,.42) !important;
+        }
+
+        div[data-testid="stRadio"] div[role="radiogroup"] label p,
+        div[data-testid="stRadio"] div[role="radiogroup"] label span,
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p,
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) span {
+            color: #1F1F1F !important;
+            -webkit-text-fill-color: #1F1F1F !important;
+            font-weight: 850 !important;
+        }
+
+        .charth-question-rule {
+            width: 100% !important;
+            height: 1px !important;
+            min-height: 1px !important;
+            max-height: 1px !important;
+            background: linear-gradient(90deg, #C8A24A 0%, #E6D2A5 50%, #C8A24A 100%) !important;
+            border: 0 !important;
+            border-radius: 999px !important;
+            box-shadow: none !important;
+            opacity: .86 !important;
+            margin: 2px 0 12px 0 !important;
+            padding: 0 !important;
+        }
+
+        html,
+        body,
+        .stApp,
+        .stApp *,
+        [class*="css"] {
+            font-family: "SIMPLO", "Simplo", "Avenir Next", "Montserrat", "Segoe UI", Arial, sans-serif !important;
+        }
+
         </style>
         """,
         unsafe_allow_html=True,
