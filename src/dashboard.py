@@ -15,10 +15,13 @@ OBSERVATION_LABELS = {
     "observacoes_vm": "Visual Merchandising",
     "observacoes_estoque_produto": "Estoque e Produto",
     "observacoes_resultados": "Resultados e Indicadores",
-    "observacoes_experiencia_cliente": "Experiência da Cliente",
+    "observacoes_experiencia_cliente_premium": "Experiência da Cliente e Padrão Premium",
     "observacoes_whatsapp": "WhatsApp e Vendas Digitais",
     "observacoes_gestao_gerente": "Gestão da Gerente",
     "observacoes_estrutura_loja": "Estrutura da Loja",
+
+    # Compatibilidade com avaliações antigas, caso existam no banco:
+    "observacoes_experiencia_cliente": "Experiência da Cliente",
     "observacoes_experiencia_premium": "Experiência Premium",
 }
 STRATEGIC_LABELS = {
@@ -29,10 +32,10 @@ STRATEGIC_LABELS = {
 }
 
 STATUS_COLOR_MAP = {
-    "Excelência CHARTH": "#C8A24A",      # Ouro
-    "Loja Forte": "#B8B8B8",            # Prata
-    "Loja em Atenção": "#A66A3F",       # Bronze
-    "Plano de Ação Imediato": "#9E3F45", # Crítico
+    "Excelência CHARTH": "#C9A0A0",       # Rosê CHARTH
+    "Loja Forte": "#C8A24A",             # Dourado
+    "Loja em Atenção": "#A66A3F",        # Bronze
+    "Plano de Ação Imediato": "#7F3438", # Crítico
 }
 BONUS_COLOR_MAP = {
     "Ouro": "#C8A24A",
