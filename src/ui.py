@@ -176,7 +176,7 @@ def apply_brand_css() -> None:
             margin-bottom: 8px;
         }
 
-        /* Labels e Inputs gerais das outras seções */
+        /* Estilos de inputs normais */
         div[data-testid="stWidgetLabel"] p,
         .stTextInput label,
         .stTextArea label,
@@ -207,7 +207,7 @@ def apply_brand_css() -> None:
             box-shadow: 0 6px 18px rgba(31,31,31,.035) !important;
         }
 
-        /* Container que envolve cada pergunta do formulário */
+        /* Card container das perguntas */
         div[data-testid="stForm"] .charth-score-wrap {
             background: #FFFDFC !important;
             border: 1px solid rgba(109,110,113,.14) !important;
@@ -237,12 +237,23 @@ def apply_brand_css() -> None:
         }
 
         /* =========================================================
-           CRÍTICO: RESET COMPLETO DO TÍTULO DA PERGUNTA (LABEL)
-           Garante que a pergunta nunca mais vire uma pílula branca.
+           RESET COMPLETO DO CONTAINER PAI DO RADIO (A BARRA BRANCA OPERACIONAL)
            ========================================================= */
+        div[data-testid="stForm"] .charth-score-wrap div[data-testid="stRadio"],
+        div[data-testid="stForm"] .charth-score-wrap div div[data-testid="stRadio"] {
+            background: transparent !important;
+            border: none !important;
+            border-style: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* Desativa fundos indesejados em qualquer label direto do bloco de notas */
         div[data-testid="stForm"] .charth-score-wrap div[data-testid="stRadio"] > label {
             display: block !important;
             background: transparent !important;
+            background-color: transparent !important;
             border: none !important;
             box-shadow: none !important;
             padding: 0 !important;
@@ -260,7 +271,7 @@ def apply_brand_css() -> None:
             line-height: 1.4 !important;
         }
 
-        /* Container das opções (0, 1, 2...) */
+        /* Container flex das opções (onde ficam os números 0, 1, 2...) */
         div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] {
             display: flex !important;
             flex-wrap: wrap !important;
@@ -270,9 +281,10 @@ def apply_brand_css() -> None:
             border: none !important;
             box-shadow: none !important;
             padding: 0 !important;
+            margin: 0 !important;
         }
 
-        /* Oculta rádio nativo e bolinha padrão do Streamlit */
+        /* Oculta os inputs e bolinhas padrão nativos */
         div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] input[type="radio"],
         div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label > div:first-child {
             position: absolute !important;
@@ -280,10 +292,11 @@ def apply_brand_css() -> None:
             width: 0 !important;
             height: 0 !important;
             display: none !important;
+            background: transparent !important;
         }
 
         /* =========================================================
-           ESTILO PREMIUM APLICADO EXCLUSIVAMENTE NOS BOTÕES DE NOTA
+           BOTÕES REDONDOS DAS OPÇÕES INDIVIDUAIS (0, 1, 2...)
            ========================================================= */
         div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label {
             position: relative !important;
@@ -302,14 +315,14 @@ def apply_brand_css() -> None:
             transition: all .15s ease-in-out !important;
         }
 
-        /* Efeito de Hover nas opções */
+        /* Hover */
         div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label:hover {
             background: linear-gradient(135deg, #FFFDFC 0%, var(--charth-rose-soft) 100%) !important;
             border-color: var(--charth-rose) !important;
             transform: translateY(-1px);
         }
 
-        /* Opção selecionada */
+        /* Ativo / Selecionado */
         div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label:has(input:checked) {
             background: linear-gradient(135deg, var(--charth-rose) 0%, var(--charth-gold-soft) 100%) !important;
             border: 1px solid var(--charth-gold) !important;
@@ -318,7 +331,7 @@ def apply_brand_css() -> None:
                 0 6px 15px rgba(185,133,133,.25) !important;
         }
 
-        /* Texto interno das pílulas (as notas/respostas em si) */
+        /* Texto numérico/binário de dentro dos botões */
         div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label p {
             color: var(--charth-black) !important;
             -webkit-text-fill-color: var(--charth-black) !important;
@@ -328,7 +341,7 @@ def apply_brand_css() -> None:
             padding: 0 !important;
         }
 
-        /* Botões padrão do sistema */
+        /* Botões normais do app */
         .stButton > button {
             border-radius: 999px;
             border: 1px solid var(--charth-black);
@@ -346,7 +359,7 @@ def apply_brand_css() -> None:
             -webkit-text-fill-color: var(--charth-black) !important;
         }
 
-        /* Sidebar: Preservando os rádio padrão de navegação */
+        /* Menu Lateral (Sidebar): Mantendo o comportamento padrão intocado */
         [data-testid="stSidebar"] {
             background: #F2ECE9;
         }
