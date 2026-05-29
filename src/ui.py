@@ -30,7 +30,6 @@ def apply_brand_css() -> None:
             --charth-gold-soft: #E7CFA2;
             --charth-bronze: #A66A3F;
             --charth-critical: #7F3438;
-            --charth-gradient: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
         }
 
         html,
@@ -51,7 +50,7 @@ def apply_brand_css() -> None:
 
         .stApp {
             background:
-                radial-gradient(circle at top left, rgba(201,160,160,.10) 0%, rgba(248,246,243,1) 38%, rgba(244,239,236,1) 100%);
+                radial-gradient(circle at top left, rgba(201,160,160,.08) 0%, rgba(248,246,243,1) 35%, rgba(244,239,236,1) 100%);
             color: var(--charth-black);
         }
 
@@ -86,23 +85,12 @@ def apply_brand_css() -> None:
         .section-card,
         .login-card,
         .metric-card,
-        .charth-premium-card,
-        .charth-form-hero,
-        .charth-section-header,
-        div[data-testid="stForm"] .charth-score-wrap,
-        div[data-testid="stForm"] div[data-testid="stVerticalBlockBorderWrapper"],
-        div[data-testid="stVerticalBlockBorderWrapper"] {
-            background: var(--charth-gradient) !important;
-            border: 1px solid rgba(201,160,160,.28) !important;
-            box-shadow: 0 12px 30px rgba(31,31,31,.035) !important;
-        }
-
-        .section-card,
-        .login-card,
-        .metric-card,
         .charth-premium-card {
+            background: rgba(255,253,252,.96);
+            border: 1px solid rgba(201,160,160,.24);
             border-radius: 24px;
             padding: 24px;
+            box-shadow: 0 18px 45px rgba(31,31,31,.045);
             margin-bottom: 18px;
         }
 
@@ -122,9 +110,12 @@ def apply_brand_css() -> None:
         }
 
         .charth-form-hero {
+            background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
+            border: 1px solid rgba(201,160,160,.28);
             border-radius: 28px;
             padding: 26px 28px;
             margin: 12px 0 22px 0;
+            box-shadow: 0 18px 42px rgba(31,31,31,.045);
         }
 
         .charth-form-hero-title {
@@ -142,8 +133,10 @@ def apply_brand_css() -> None:
         }
 
         .charth-section-header {
-            border-radius: 22px;
-            padding: 22px 26px;
+            background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
+            border-top: 1px solid rgba(201,160,160,.32);
+            border-bottom: 1px solid rgba(201,160,160,.18);
+            padding: 16px 4px 14px 4px;
             margin-top: 18px;
             margin-bottom: 14px;
         }
@@ -183,6 +176,7 @@ def apply_brand_css() -> None:
             margin-bottom: 8px;
         }
 
+        /* Campos gerais, sem afetar radio */
         div[data-testid="stWidgetLabel"] p,
         .stTextInput label,
         .stTextArea label,
@@ -198,8 +192,7 @@ def apply_brand_css() -> None:
 
         input:not([type="radio"]):not([type="checkbox"]),
         textarea,
-        [data-baseweb="select"],
-        [data-baseweb="input"] {
+        [data-baseweb="select"] {
             color: var(--charth-black) !important;
             -webkit-text-fill-color: var(--charth-black) !important;
             background: #FFFDFC !important;
@@ -207,17 +200,10 @@ def apply_brand_css() -> None:
             border-color: var(--charth-silver-line) !important;
         }
 
-        [data-baseweb="select"] > div {
-            color: var(--charth-black) !important;
-            -webkit-text-fill-color: var(--charth-black) !important;
-            background: #FFFDFC !important;
-            border-color: var(--charth-silver-line) !important;
-        }
-
         textarea,
         textarea:focus {
-            background: #FFFDFC !important;
-            border: 1px solid var(--charth-silver-line) !important;
+            background:linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
+            border: 1px solid #D8D2CF !important;
             box-shadow: 0 6px 18px rgba(31,31,31,.035) !important;
         }
 
@@ -228,21 +214,31 @@ def apply_brand_css() -> None:
             opacity: 1 !important;
         }
 
+        /* =========================================================
+           Formulário de avaliação: botões premium
+           Escopo exclusivo do FORM. Não interfere no menu lateral.
+           ========================================================= */
         div[data-testid="stForm"] .charth-score-wrap {
+            background: #FFFDFC !important;
+            border: 1px solid rgba(109,110,113,.14) !important;
             border-radius: 18px !important;
             padding: 16px !important;
             margin: 0 0 14px 0 !important;
+            box-shadow: 0 10px 24px rgba(31,31,31,.026) !important;
         }
 
         div[data-testid="stForm"] .charth-question-rule {
-            display: none !important;
-            width: 0 !important;
-            height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
+            width: 100% !important;
+            height: 1px !important;
+            min-height: 1px !important;
+            max-height: 1px !important;
+            background: linear-gradient(90deg, var(--charth-gold) 0%, var(--charth-gold-soft) 50%, var(--charth-gold) 100%) !important;
             border: 0 !important;
-            background: transparent !important;
+            border-radius: 999px !important;
             box-shadow: none !important;
+            opacity: .88 !important;
+            margin: 2px 0 12px 0 !important;
+            padding: 0 !important;
         }
 
         div[data-testid="stForm"] .charth-score-helper {
@@ -313,7 +309,7 @@ def apply_brand_css() -> None:
             height: 40px !important;
             padding: 0 16px !important;
             margin: 0 4px 8px 0 !important;
-            border: 1px solid var(--charth-silver-line) !important;
+            border: 1px solid #D8D2CF !important;
             border-radius: 999px !important;
             background: linear-gradient(180deg, #FFFFFF 0%, #FFFDFC 100%) !important;
             box-shadow: 0 6px 15px rgba(31,31,31,.045) !important;
@@ -351,6 +347,7 @@ def apply_brand_css() -> None:
             font-weight: 850 !important;
         }
 
+        /* Botões comuns */
         .stButton > button {
             border-radius: 999px;
             border: 1px solid var(--charth-black);
@@ -382,6 +379,7 @@ def apply_brand_css() -> None:
             stroke: var(--charth-black) !important;
         }
 
+        /* Sidebar: totalmente separada do formulário */
         [data-testid="stSidebar"] {
             background: #F2ECE9;
         }
@@ -430,36 +428,6 @@ def apply_brand_css() -> None:
         }
 
         @media (max-width: 768px) {
-
-            /* Mobile: fundo com mais contraste */
-            .stApp {
-                background:
-                    radial-gradient(circle at top left, rgba(201,160,160,.22) 0%, rgba(248,246,243,1) 36%, rgba(232,224,220,1) 100%) !important;
-            }
-
-            /* Mobile: cards mais destacados */
-            .charth-form-hero,
-            .charth-section-header,
-            div[data-testid="stForm"] .charth-score-wrap,
-            .section-card,
-            .login-card,
-            .metric-card,
-            .charth-premium-card,
-            div[data-testid="stVerticalBlockBorderWrapper"] {
-                background: linear-gradient(135deg, #FFFFFF 0%, #F3E8E6 100%) !important;
-                border: 1px solid rgba(185,133,133,.36) !important;
-                box-shadow: 0 12px 28px rgba(31,31,31,.085) !important;
-            }
-
-            /* Mobile: campos internos mais legíveis */
-            input:not([type="radio"]):not([type="checkbox"]),
-            textarea,
-            [data-baseweb="select"],
-            [data-baseweb="input"] {
-                background: #FFFFFF !important;
-                border: 1px solid rgba(109,110,113,.24) !important;
-            }
-
             .brand-title {
                 font-size: 28px;
                 letter-spacing: .36em;
@@ -512,55 +480,43 @@ def apply_brand_css() -> None:
             }
         }
 
-        /* =========================================================
-           Upload de foto: botão claro com gradiente CHARTH
-           Especialmente importante no mobile, onde o botão preto
-           prejudicava a leitura.
-           ========================================================= */
-        div[data-testid="stFileUploader"] button,
-        div[data-testid="stFileUploader"] section button,
-        div[data-testid="stFileUploader"] [data-testid="baseButton-secondary"] {
+        /* Multiselect / choose options claro com texto preto */
+        [data-baseweb="tag"] {
             background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%) !important;
+            border: 1px solid rgba(201,160,160,.45) !important;
             color: #1F1F1F !important;
             -webkit-text-fill-color: #1F1F1F !important;
-            border: 1px solid rgba(201,160,160,.45) !important;
             border-radius: 999px !important;
-            box-shadow: 0 8px 18px rgba(31,31,31,.06) !important;
+            box-shadow: 0 6px 14px rgba(31,31,31,.045) !important;
             font-weight: 750 !important;
-            letter-spacing: .03em !important;
         }
 
-        div[data-testid="stFileUploader"] button *,
-        div[data-testid="stFileUploader"] section button *,
-        div[data-testid="stFileUploader"] [data-testid="baseButton-secondary"] * {
+        [data-baseweb="tag"] span,
+        [data-baseweb="tag"] svg,
+        [data-baseweb="tag"] path,
+        [data-baseweb="tag"] button,
+        [data-baseweb="tag"] button * {
             color: #1F1F1F !important;
             -webkit-text-fill-color: #1F1F1F !important;
             fill: #1F1F1F !important;
             stroke: #1F1F1F !important;
         }
 
-        div[data-testid="stFileUploader"] button:hover,
-        div[data-testid="stFileUploader"] section button:hover,
-        div[data-testid="stFileUploader"] [data-testid="baseButton-secondary"]:hover {
-            background: linear-gradient(135deg, #F3E8E6 0%, #E7CFA2 100%) !important;
+        [data-baseweb="select"] span,
+        [data-baseweb="select"] div,
+        [data-baseweb="select"] input {
             color: #1F1F1F !important;
             -webkit-text-fill-color: #1F1F1F !important;
-            border-color: #C8A24A !important;
-            box-shadow: 0 10px 22px rgba(201,160,160,.20) !important;
         }
 
-        div[data-testid="stFileUploader"] section {
-            background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%) !important;
-            border: 1px dashed rgba(201,160,160,.55) !important;
-            border-radius: 18px !important;
+        [data-baseweb="select"] {
+            background: #FFFDFC !important;
+            border-color: #D8D2CF !important;
         }
 
-        div[data-testid="stFileUploader"] section *,
-        div[data-testid="stFileUploader"] small,
-        div[data-testid="stFileUploader"] span,
-        div[data-testid="stFileUploader"] p {
-            color: #1F1F1F !important;
-            -webkit-text-fill-color: #1F1F1F !important;
+        [data-baseweb="select"]:focus-within {
+            border-color: #1F1F1F !important;
+            box-shadow: 0 0 0 2px rgba(31,31,31,.10) !important;
         }
 
         </style>
@@ -596,47 +552,3 @@ def metric_card(title: str, value: str, detail: str = "") -> None:
         """,
         unsafe_allow_html=True,
     )
-/* Multiselect / choose options sem vermelho */
-[data-baseweb="select"] span,
-[data-baseweb="select"] div,
-[data-baseweb="select"] input {
-    color: #1F1F1F !important;
-    -webkit-text-fill-color: #1F1F1F !important;
-}
-
-[data-baseweb="tag"] {
-    background: #1F1F1F !important;
-    border: 1px solid #1F1F1F !important;
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    border-radius: 999px !important;
-}
-
-[data-baseweb="tag"] span,
-[data-baseweb="tag"] svg,
-[data-baseweb="tag"] path {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    fill: #FFFFFF !important;
-    stroke: #FFFFFF !important;
-}
-
-/* Botão de remover do item selecionado */
-[data-baseweb="tag"] button,
-[data-baseweb="tag"] button * {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    fill: #FFFFFF !important;
-    stroke: #FFFFFF !important;
-}
-
-/* Bordas e foco do campo */
-[data-baseweb="select"] {
-    background: #FFFDFC !important;
-    border-color: #D8D2CF !important;
-}
-
-[data-baseweb="select"]:focus-within {
-    border-color: #1F1F1F !important;
-    box-shadow: 0 0 0 2px rgba(31,31,31,.10) !important;
-}
