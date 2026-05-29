@@ -596,3 +596,47 @@ def metric_card(title: str, value: str, detail: str = "") -> None:
         """,
         unsafe_allow_html=True,
     )
+/* Multiselect / choose options sem vermelho */
+[data-baseweb="select"] span,
+[data-baseweb="select"] div,
+[data-baseweb="select"] input {
+    color: #1F1F1F !important;
+    -webkit-text-fill-color: #1F1F1F !important;
+}
+
+[data-baseweb="tag"] {
+    background: #1F1F1F !important;
+    border: 1px solid #1F1F1F !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    border-radius: 999px !important;
+}
+
+[data-baseweb="tag"] span,
+[data-baseweb="tag"] svg,
+[data-baseweb="tag"] path {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+}
+
+/* Botão de remover do item selecionado */
+[data-baseweb="tag"] button,
+[data-baseweb="tag"] button * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+}
+
+/* Bordas e foco do campo */
+[data-baseweb="select"] {
+    background: #FFFDFC !important;
+    border-color: #D8D2CF !important;
+}
+
+[data-baseweb="select"]:focus-within {
+    border-color: #1F1F1F !important;
+    box-shadow: 0 0 0 2px rgba(31,31,31,.10) !important;
+}
