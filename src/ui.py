@@ -511,6 +511,58 @@ def apply_brand_css() -> None:
                 -webkit-text-fill-color: var(--charth-black) !important;
             }
         }
+
+        /* =========================================================
+           Upload de foto: botão claro com gradiente CHARTH
+           Especialmente importante no mobile, onde o botão preto
+           prejudicava a leitura.
+           ========================================================= */
+        div[data-testid="stFileUploader"] button,
+        div[data-testid="stFileUploader"] section button,
+        div[data-testid="stFileUploader"] [data-testid="baseButton-secondary"] {
+            background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%) !important;
+            color: #1F1F1F !important;
+            -webkit-text-fill-color: #1F1F1F !important;
+            border: 1px solid rgba(201,160,160,.45) !important;
+            border-radius: 999px !important;
+            box-shadow: 0 8px 18px rgba(31,31,31,.06) !important;
+            font-weight: 750 !important;
+            letter-spacing: .03em !important;
+        }
+
+        div[data-testid="stFileUploader"] button *,
+        div[data-testid="stFileUploader"] section button *,
+        div[data-testid="stFileUploader"] [data-testid="baseButton-secondary"] * {
+            color: #1F1F1F !important;
+            -webkit-text-fill-color: #1F1F1F !important;
+            fill: #1F1F1F !important;
+            stroke: #1F1F1F !important;
+        }
+
+        div[data-testid="stFileUploader"] button:hover,
+        div[data-testid="stFileUploader"] section button:hover,
+        div[data-testid="stFileUploader"] [data-testid="baseButton-secondary"]:hover {
+            background: linear-gradient(135deg, #F3E8E6 0%, #E7CFA2 100%) !important;
+            color: #1F1F1F !important;
+            -webkit-text-fill-color: #1F1F1F !important;
+            border-color: #C8A24A !important;
+            box-shadow: 0 10px 22px rgba(201,160,160,.20) !important;
+        }
+
+        div[data-testid="stFileUploader"] section {
+            background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%) !important;
+            border: 1px dashed rgba(201,160,160,.55) !important;
+            border-radius: 18px !important;
+        }
+
+        div[data-testid="stFileUploader"] section *,
+        div[data-testid="stFileUploader"] small,
+        div[data-testid="stFileUploader"] span,
+        div[data-testid="stFileUploader"] p {
+            color: #1F1F1F !important;
+            -webkit-text-fill-color: #1F1F1F !important;
+        }
+
         </style>
         """,
         unsafe_allow_html=True,
