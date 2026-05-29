@@ -252,6 +252,7 @@ def apply_brand_css() -> None:
             padding: 0 !important;
         }
 
+        /* ALTERAÇÃO AQUI: Garante que o rótulo principal/pergunta do widget fique limpo, sem caixas */
         div[data-testid="stForm"] div[data-testid="stRadio"] > label {
             display: block !important;
             height: auto !important;
@@ -303,7 +304,9 @@ def apply_brand_css() -> None:
             padding: 0 !important;
         }
 
-        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] label {
+        /* ALTERAÇÃO AQUI: Garante que apenas as opções do radiogroup recebam o design de botão arredondado */
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] > label,
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] [data-testid="stWidgetMarkdownControlledByLayout"] label {
             position: relative !important;
             min-width: 46px !important;
             height: 40px !important;
