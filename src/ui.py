@@ -54,7 +54,7 @@ def apply_brand_css() -> None:
             color: var(--charth-black);
         }
 
-        h1, h2, h3, h4 {
+        h1, h2, h3 {
             color: var(--charth-black);
             letter-spacing: .01em;
             font-weight: 650;
@@ -176,7 +176,7 @@ def apply_brand_css() -> None:
             margin-bottom: 8px;
         }
 
-        /* Estilos de inputs normais */
+        /* Campos gerais, sem afetar radio */
         div[data-testid="stWidgetLabel"] p,
         .stTextInput label,
         .stTextArea label,
@@ -207,7 +207,17 @@ def apply_brand_css() -> None:
             box-shadow: 0 6px 18px rgba(31,31,31,.035) !important;
         }
 
-        /* Card container das perguntas */
+        input::placeholder,
+        textarea::placeholder {
+            color: #7E7E7E !important;
+            -webkit-text-fill-color: #7E7E7E !important;
+            opacity: 1 !important;
+        }
+
+        /* =========================================================
+           Formulário de avaliação: botões premium
+           Escopo exclusivo do FORM. Não interfere no menu lateral.
+           ========================================================= */
         div[data-testid="stForm"] .charth-score-wrap {
             background: #FFFDFC !important;
             border: 1px solid rgba(109,110,113,.14) !important;
@@ -220,10 +230,15 @@ def apply_brand_css() -> None:
         div[data-testid="stForm"] .charth-question-rule {
             width: 100% !important;
             height: 1px !important;
+            min-height: 1px !important;
+            max-height: 1px !important;
             background: linear-gradient(90deg, var(--charth-gold) 0%, var(--charth-gold-soft) 50%, var(--charth-gold) 100%) !important;
             border: 0 !important;
+            border-radius: 999px !important;
+            box-shadow: none !important;
             opacity: .88 !important;
             margin: 2px 0 12px 0 !important;
+            padding: 0 !important;
         }
 
         div[data-testid="stForm"] .charth-score-helper {
@@ -234,114 +249,105 @@ def apply_brand_css() -> None:
             text-transform: uppercase !important;
             letter-spacing: .08em !important;
             margin: 0 0 8px 0 !important;
-        }
-
-        /* =========================================================
-           RESET COMPLETO DO CONTAINER PAI DO RADIO (A BARRA BRANCA OPERACIONAL)
-           ========================================================= */
-        div[data-testid="stForm"] .charth-score-wrap div[data-testid="stRadio"],
-        div[data-testid="stForm"] .charth-score-wrap div div[data-testid="stRadio"] {
-            background: transparent !important;
-            border: none !important;
-            border-style: none !important;
-            box-shadow: none !important;
             padding: 0 !important;
-            margin: 0 !important;
         }
 
-        /* Desativa fundos indesejados em qualquer label direto do bloco de notas */
-        div[data-testid="stForm"] .charth-score-wrap div[data-testid="stRadio"] > label {
+        div[data-testid="stForm"] div[data-testid="stRadio"] > label {
             display: block !important;
-            background: transparent !important;
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-            margin: 0 0 12px 0 !important;
-            width: 100% !important;
             height: auto !important;
-            min-width: unset !important;
+            width: auto !important;
+            margin: 0 0 10px 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
         }
 
-        div[data-testid="stForm"] .charth-score-wrap div[data-testid="stRadio"] > label p {
+        div[data-testid="stForm"] div[data-testid="stRadio"] > label p {
             color: var(--charth-black) !important;
             -webkit-text-fill-color: var(--charth-black) !important;
             font-size: 14px !important;
-            font-weight: 750 !important;
-            line-height: 1.4 !important;
+            font-weight: 780 !important;
+            line-height: 1.35 !important;
+            margin: 0 !important;
         }
 
-        /* Container flex das opções (onde ficam os números 0, 1, 2...) */
-        div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] {
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] {
             display: flex !important;
             flex-wrap: wrap !important;
             gap: 8px !important;
             align-items: center !important;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
+            margin-top: 0 !important;
         }
 
-        /* Oculta os inputs e bolinhas padrão nativos */
-        div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] input[type="radio"],
-        div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label > div:first-child {
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] input[type="radio"] {
             position: absolute !important;
             opacity: 0 !important;
-            width: 0 !important;
-            height: 0 !important;
-            display: none !important;
+            width: 1px !important;
+            height: 1px !important;
+            min-width: 1px !important;
+            min-height: 1px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
             background: transparent !important;
+            box-shadow: none !important;
+            pointer-events: none !important;
         }
 
-        /* =========================================================
-           BOTÕES REDONDOS DAS OPÇÕES INDIVIDUAIS (0, 1, 2...)
-           ========================================================= */
-        div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label {
-            position: relative !important;
-            min-width: 44px !important;
-            height: 38px !important;
-            padding: 0 14px !important;
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
             margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] label {
+            position: relative !important;
+            min-width: 46px !important;
+            height: 40px !important;
+            padding: 0 16px !important;
+            margin: 0 4px 8px 0 !important;
             border: 1px solid #D8D2CF !important;
             border-radius: 999px !important;
             background: linear-gradient(180deg, #FFFFFF 0%, #FFFDFC 100%) !important;
-            box-shadow: 0 4px 10px rgba(31,31,31,.03) !important;
+            box-shadow: 0 6px 15px rgba(31,31,31,.045) !important;
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             cursor: pointer !important;
-            transition: all .15s ease-in-out !important;
+            transition: all .16s ease-in-out !important;
         }
 
-        /* Hover */
-        div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label:hover {
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
             background: linear-gradient(135deg, #FFFDFC 0%, var(--charth-rose-soft) 100%) !important;
             border-color: var(--charth-rose) !important;
+            box-shadow: 0 8px 20px rgba(201,160,160,.22) !important;
             transform: translateY(-1px);
         }
 
-        /* Ativo / Selecionado */
-        div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label:has(input:checked) {
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
             background: linear-gradient(135deg, var(--charth-rose) 0%, var(--charth-gold-soft) 100%) !important;
             border: 1px solid var(--charth-gold) !important;
             box-shadow:
-                inset 0 0 0 1px rgba(255,255,255,.4),
-                0 6px 15px rgba(185,133,133,.25) !important;
+                inset 0 0 0 1px rgba(255,255,255,.55),
+                0 9px 22px rgba(185,133,133,.27),
+                0 2px 0 rgba(200,162,74,.42) !important;
         }
 
-        /* Texto numérico/binário de dentro dos botões */
-        div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label p {
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] label p,
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] label span,
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p,
+        div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) span {
             color: var(--charth-black) !important;
             -webkit-text-fill-color: var(--charth-black) !important;
-            font-weight: 800 !important;
-            font-size: 13px !important;
-            margin: 0 !important;
-            padding: 0 !important;
+            font-weight: 850 !important;
         }
 
-        /* Botões normais do app */
+        /* Botões comuns */
         .stButton > button {
             border-radius: 999px;
             border: 1px solid var(--charth-black);
@@ -352,6 +358,13 @@ def apply_brand_css() -> None:
             font-weight: 700;
         }
 
+        .stButton > button * {
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            fill: #FFFFFF !important;
+            stroke: #FFFFFF !important;
+        }
+
         .stButton > button:hover {
             border-color: var(--charth-rose);
             background: var(--charth-rose);
@@ -359,7 +372,14 @@ def apply_brand_css() -> None:
             -webkit-text-fill-color: var(--charth-black) !important;
         }
 
-        /* Menu Lateral (Sidebar): Mantendo o comportamento padrão intocado */
+        .stButton > button:hover * {
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+            fill: var(--charth-black) !important;
+            stroke: var(--charth-black) !important;
+        }
+
+        /* Sidebar: totalmente separada do formulário */
         [data-testid="stSidebar"] {
             background: #F2ECE9;
         }
@@ -376,7 +396,7 @@ def apply_brand_css() -> None:
             box-shadow: none !important;
             height: auto !important;
             min-width: unset !important;
-            padding: 4px 0 !important;
+            padding: 2px 0 !important;
             margin: 0 !important;
             display: flex !important;
             justify-content: flex-start !important;
@@ -386,23 +406,77 @@ def apply_brand_css() -> None:
             display: flex !important;
         }
 
+        [data-testid="stSidebar"] button,
+        [data-testid="stSidebar"] .stButton > button {
+            background: var(--charth-black) !important;
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            border: 1px solid var(--charth-black) !important;
+            box-shadow: none !important;
+        }
+
+        [data-testid="stSidebar"] button *,
+        [data-testid="stSidebar"] .stButton > button * {
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            fill: #FFFFFF !important;
+            stroke: #FFFFFF !important;
+        }
+
         .dataframe {
             font-size: 13px;
         }
 
         @media (max-width: 768px) {
-            .brand-title { font-size: 28px; letter-spacing: .36em; text-align: left; }
-            .brand-subtitle { text-align: left; letter-spacing: .14em; font-size: 10px; }
+            .brand-title {
+                font-size: 28px;
+                letter-spacing: .36em;
+                text-align: left;
+            }
+
+            .brand-subtitle {
+                text-align: left;
+                letter-spacing: .14em;
+                font-size: 10px;
+            }
+
             h1 { font-size: 1.75rem !important; }
             h2 { font-size: 1.25rem !important; }
             h3 { font-size: 1.05rem !important; }
-            .charth-form-hero { padding: 20px 18px; border-radius: 22px; }
-            .charth-section-title { font-size: 19px; }
-            .section-card, .login-card, .metric-card, .charth-premium-card { padding: 18px; border-radius: 20px; }
-            div[data-testid="stForm"] .charth-score-wrap div[role="radiogroup"] label {
-                min-width: 38px !important;
-                height: 34px !important;
-                padding: 0 10px !important;
+
+            .charth-form-hero {
+                padding: 20px 18px;
+                border-radius: 22px;
+            }
+
+            .charth-section-title {
+                font-size: 19px;
+            }
+
+            .section-card,
+            .login-card,
+            .metric-card,
+            .charth-premium-card {
+                padding: 18px;
+                border-radius: 20px;
+            }
+
+            div[data-testid="stForm"] div[data-testid="stRadio"] div[role="radiogroup"] label {
+                min-width: 42px !important;
+                height: 38px !important;
+                padding: 0 13px !important;
+                margin: 0 3px 7px 0 !important;
+            }
+
+            input:not([type="radio"]):not([type="checkbox"]),
+            textarea,
+            [data-baseweb="select"],
+            [data-baseweb="select"] *,
+            [data-baseweb="input"],
+            [data-baseweb="input"] * {
+                font-size: 16px !important;
+                color: var(--charth-black) !important;
+                -webkit-text-fill-color: var(--charth-black) !important;
             }
         }
         </style>
