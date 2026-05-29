@@ -430,6 +430,36 @@ def apply_brand_css() -> None:
         }
 
         @media (max-width: 768px) {
+
+            /* Mobile: fundo com mais contraste */
+            .stApp {
+                background:
+                    radial-gradient(circle at top left, rgba(201,160,160,.22) 0%, rgba(248,246,243,1) 36%, rgba(232,224,220,1) 100%) !important;
+            }
+
+            /* Mobile: cards mais destacados */
+            .charth-form-hero,
+            .charth-section-header,
+            div[data-testid="stForm"] .charth-score-wrap,
+            .section-card,
+            .login-card,
+            .metric-card,
+            .charth-premium-card,
+            div[data-testid="stVerticalBlockBorderWrapper"] {
+                background: linear-gradient(135deg, #FFFFFF 0%, #F3E8E6 100%) !important;
+                border: 1px solid rgba(185,133,133,.36) !important;
+                box-shadow: 0 12px 28px rgba(31,31,31,.085) !important;
+            }
+
+            /* Mobile: campos internos mais legíveis */
+            input:not([type="radio"]):not([type="checkbox"]),
+            textarea,
+            [data-baseweb="select"],
+            [data-baseweb="input"] {
+                background: #FFFFFF !important;
+                border: 1px solid rgba(109,110,113,.24) !important;
+            }
+
             .brand-title {
                 font-size: 28px;
                 letter-spacing: .36em;
