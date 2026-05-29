@@ -30,6 +30,7 @@ def apply_brand_css() -> None:
             --charth-gold-soft: #E7CFA2;
             --charth-bronze: #A66A3F;
             --charth-critical: #7F3438;
+            --charth-gradient: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
         }
 
         html,
@@ -50,7 +51,7 @@ def apply_brand_css() -> None:
 
         .stApp {
             background:
-                radial-gradient(circle at top left, rgba(201,160,160,.08) 0%, rgba(248,246,243,1) 35%, rgba(244,239,236,1) 100%);
+                radial-gradient(circle at top left, rgba(201,160,160,.10) 0%, rgba(248,246,243,1) 38%, rgba(244,239,236,1) 100%);
             color: var(--charth-black);
         }
 
@@ -85,12 +86,23 @@ def apply_brand_css() -> None:
         .section-card,
         .login-card,
         .metric-card,
+        .charth-premium-card,
+        .charth-form-hero,
+        .charth-section-header,
+        div[data-testid="stForm"] .charth-score-wrap,
+        div[data-testid="stForm"] div[data-testid="stVerticalBlockBorderWrapper"],
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            background: var(--charth-gradient) !important;
+            border: 1px solid rgba(201,160,160,.28) !important;
+            box-shadow: 0 12px 30px rgba(31,31,31,.035) !important;
+        }
+
+        .section-card,
+        .login-card,
+        .metric-card,
         .charth-premium-card {
-            background: rgba(255,253,252,.96);
-            border: 1px solid rgba(201,160,160,.24);
             border-radius: 24px;
             padding: 24px;
-            box-shadow: 0 18px 45px rgba(31,31,31,.045);
             margin-bottom: 18px;
         }
 
@@ -110,12 +122,9 @@ def apply_brand_css() -> None:
         }
 
         .charth-form-hero {
-            background: linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
-            border: 1px solid rgba(201,160,160,.28);
             border-radius: 28px;
             padding: 26px 28px;
             margin: 12px 0 22px 0;
-            box-shadow: 0 18px 42px rgba(31,31,31,.045);
         }
 
         .charth-form-hero-title {
@@ -133,10 +142,8 @@ def apply_brand_css() -> None:
         }
 
         .charth-section-header {
-            background: #FFFDFC;
-            border-top: 1px solid rgba(201,160,160,.32);
-            border-bottom: 1px solid rgba(201,160,160,.18);
-            padding: 16px 4px 14px 4px;
+            border-radius: 22px;
+            padding: 22px 26px;
             margin-top: 18px;
             margin-bottom: 14px;
         }
@@ -176,7 +183,6 @@ def apply_brand_css() -> None:
             margin-bottom: 8px;
         }
 
-        /* Campos gerais, sem afetar radio */
         div[data-testid="stWidgetLabel"] p,
         .stTextInput label,
         .stTextArea label,
@@ -192,7 +198,8 @@ def apply_brand_css() -> None:
 
         input:not([type="radio"]):not([type="checkbox"]),
         textarea,
-        [data-baseweb="select"] {
+        [data-baseweb="select"],
+        [data-baseweb="input"] {
             color: var(--charth-black) !important;
             -webkit-text-fill-color: var(--charth-black) !important;
             background: #FFFDFC !important;
@@ -200,10 +207,17 @@ def apply_brand_css() -> None:
             border-color: var(--charth-silver-line) !important;
         }
 
+        [data-baseweb="select"] > div {
+            color: var(--charth-black) !important;
+            -webkit-text-fill-color: var(--charth-black) !important;
+            background: #FFFDFC !important;
+            border-color: var(--charth-silver-line) !important;
+        }
+
         textarea,
         textarea:focus {
             background: #FFFDFC !important;
-            border: 1px solid #D8D2CF !important;
+            border: 1px solid var(--charth-silver-line) !important;
             box-shadow: 0 6px 18px rgba(31,31,31,.035) !important;
         }
 
@@ -214,31 +228,21 @@ def apply_brand_css() -> None:
             opacity: 1 !important;
         }
 
-        /* =========================================================
-           Formulário de avaliação: botões premium
-           Escopo exclusivo do FORM. Não interfere no menu lateral.
-           ========================================================= */
         div[data-testid="stForm"] .charth-score-wrap {
-            background: #FFFDFC !important;
-            border: 1px solid rgba(109,110,113,.14) !important;
             border-radius: 18px !important;
             padding: 16px !important;
             margin: 0 0 14px 0 !important;
-            box-shadow: 0 10px 24px rgba(31,31,31,.026) !important;
         }
 
         div[data-testid="stForm"] .charth-question-rule {
-            width: 100% !important;
-            height: 1px !important;
-            min-height: 1px !important;
-            max-height: 1px !important;
-            background: linear-gradient(90deg, var(--charth-gold) 0%, var(--charth-gold-soft) 50%, var(--charth-gold) 100%) !important;
-            border: 0 !important;
-            border-radius: 999px !important;
-            box-shadow: none !important;
-            opacity: .88 !important;
-            margin: 2px 0 12px 0 !important;
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            margin: 0 !important;
             padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
         }
 
         div[data-testid="stForm"] .charth-score-helper {
@@ -309,7 +313,7 @@ def apply_brand_css() -> None:
             height: 40px !important;
             padding: 0 16px !important;
             margin: 0 4px 8px 0 !important;
-            border: 1px solid #D8D2CF !important;
+            border: 1px solid var(--charth-silver-line) !important;
             border-radius: 999px !important;
             background: linear-gradient(180deg, #FFFFFF 0%, #FFFDFC 100%) !important;
             box-shadow: 0 6px 15px rgba(31,31,31,.045) !important;
@@ -347,7 +351,6 @@ def apply_brand_css() -> None:
             font-weight: 850 !important;
         }
 
-        /* Botões comuns */
         .stButton > button {
             border-radius: 999px;
             border: 1px solid var(--charth-black);
@@ -379,7 +382,6 @@ def apply_brand_css() -> None:
             stroke: var(--charth-black) !important;
         }
 
-        /* Sidebar: totalmente separada do formulário */
         [data-testid="stSidebar"] {
             background: #F2ECE9;
         }
