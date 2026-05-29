@@ -93,7 +93,11 @@ def render_evaluation_form(user: dict) -> None:
         with st.container(border=True):
             c1, c2 = st.columns(2)
             with c1:
-                evaluation_date = st.date_input("Data", value=date.today())
+                evaluation_date = st.date_input(
+    "Data",
+    value=date.today(),
+    format="DD/MM/YYYY",
+)
                 supervisor = st.text_input("Supervisora", value=user.get("name", "") if user.get("role") == "supervisora" else "")
             with c2:
                 manager = st.selectbox("Gerente de Loja", MANAGERS)
