@@ -161,7 +161,7 @@ def _render_history_css() -> None:
 
 
 def dashboard_page(user: dict) -> None:
-    header("Dashboard Executivo", "Visão gerencial de performance das lojas CHARTH, sem plano de ação e sem bonificação.")
+    header("Dashboard Executivo", "Visão gerencial de performance das lojas CHARTH, sem plano de ação.")
     df = filter_df_for_user(evaluations_df(), user)
     if df.empty:
         st.info("Ainda não existem avaliações salvas. Use o menu Nova Avaliação para registrar a primeira avaliação.")
@@ -260,10 +260,9 @@ def dashboard_page(user: dict) -> None:
     st.markdown(
         """
         <div class="charth-dashboard-note">
-            <strong>Regra de status operacional:</strong>
-            Excelência CHARTH ≥ 9, Loja Forte ≥ 8, Loja em Atenção ≥ 7 e Plano de Ação Imediato abaixo de 7.
-            A bonificação foi removida deste painel e fica concentrada no menu <strong>Bonificação</strong>.
-            As pendências ficam concentradas no menu <strong>Planos de Ação</strong>.
+            <strong>:</strong>
+            #MUITO CHARTH ≥ 9, Loja Forte ≥ 8, Loja em Atenção ≥ 7 e Plano de Ação Imediato abaixo de 7.
+             As pendências ficam concentradas no menu <strong>Planos de Ação</strong>.
         </div>
         """,
         unsafe_allow_html=True,
