@@ -19,9 +19,9 @@ st.sidebar.caption(f"Banco: {database_mode_label()}")
 logout_button()
 
 if can_edit(user):
-    pages = ["Dashboard", "Nova Avaliação", "Histórico", "Planos de Ação", "Bonificação", "Configurações"]
+    pages = ["Dashboard", "Nova Avaliação", "Histórico", "Planos de Ação", "Configurações"]
 else:
-    pages = ["Dashboard", "Histórico", "Planos de Ação", "Bonificação"]
+    pages = ["Dashboard", "Histórico", "Planos de Ação"]
 
 page = st.sidebar.radio("Menu", pages)
 
