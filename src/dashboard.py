@@ -675,7 +675,7 @@ def action_plans_page(user: dict) -> None:
         <div class="charth-rule-card">
             <div class="charth-kicker">Regra de status operacional da loja</div>
             <div class="charth-history-card-body">
-                <strong>Excelência CHARTH</strong>: média geral ≥ 9 &nbsp; | &nbsp;
+                <strong>Loja #MUITO CHARTH</strong>: média geral ≥ 9 &nbsp; | &nbsp;
                 <strong>Loja Forte</strong>: média geral ≥ 8 &nbsp; | &nbsp;
                 <strong>Loja em Atenção</strong>: média geral ≥ 7 &nbsp; | &nbsp;
                 <strong>Plano de Ação Imediato</strong>: média geral abaixo de 7.
