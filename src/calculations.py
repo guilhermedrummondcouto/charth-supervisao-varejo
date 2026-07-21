@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from typing import Any
+
 from .config import BONUS_CONFIG, FORM_SECTIONS, WEIGHTS
 
 
@@ -27,6 +29,11 @@ def mean(values: list[float]) -> float:
 
 
 def compute_section_scores(scores: dict[str, float]) -> dict[str, float]:
+    """Calcula a média de cada seção.
+
+    A pergunta de acuracidade entra automaticamente na média do bloco
+    Estoque e Produto, porque está dentro de FORM_SECTIONS.
+    """
     result: dict[str, float] = {}
     for section in FORM_SECTIONS:
         vals = []
@@ -38,6 +45,14 @@ def compute_section_scores(scores: dict[str, float]) -> dict[str, float]:
 
 
 def compute_weighted_score(section_scores: dict[str, float]) -> float:
+    """Calcula a média ponderada principal.
+
+    Fórmula oficial atual:
+    ((Equipe x1) + (VM x1) + (Estoque x1) + (Resultados x2) +
+     (Experiência da Cliente e Padrão Premium x1) + (Gestão x2)) / 8
+
+    WhatsApp e Estrutura da Loja ficam fora da média ponderada principal.
+    """
     total_weight = sum(WEIGHTS.values())
     total = 0.0
     for section, weight in WEIGHTS.items():
@@ -46,16 +61,7 @@ def compute_weighted_score(section_scores: dict[str, float]) -> float:
 
 
 def status_from_weighted(score: float) -> str:
-    """Status operacional oficial da avaliação.
-
-    Regra equivalente à fórmula da planilha:
-    SE(MÉDIA GERAL>=9; "Excelência CHARTH";
-      SE(MÉDIA GERAL>=8; "Loja Forte";
-        SE(MÉDIA GERAL>=7; "Loja em Atenção";
-          "Plano de Ação Imediato")))
-
-    Observação: bonificação trimestral é calculada separadamente em compute_bonus().
-    """
+    """Status operacional oficial da avaliação."""
     if score >= 9.0:
         return "Excelência CHARTH"
     if score >= 8.0:
@@ -87,6 +93,8 @@ def manager_gold_value(weighted_score: float) -> float:
     return 0.0
 
 
+# Mantido por compatibilidade com versões antigas.
+# O formulário corrigido não exibe mais bonificação.
 def compute_bonus(section_scores: dict[str, float], weighted_score: float, grave_issue: bool) -> dict[str, Any]:
     cfg = BONUS_CONFIG
     result_score = section_scores.get("Resultados e Indicadores", 0.0)
