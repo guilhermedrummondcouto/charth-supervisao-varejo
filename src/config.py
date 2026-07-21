@@ -90,18 +90,19 @@ FORM_SECTIONS = [
             {"key": "araras_penteadas", "label": "As araras estão penteadas?", "type": "binary"},
         ],
     },
-    {
-        "name": "Estoque e Produto",
-        "observation_key": "observacoes_estoque_produto",
-        "photo_key": "foto_estoque_produto",
-        "questions": [
-            {"key": "estoque_organizado_limpo", "label": "O estoque está organizado e limpo?", "type": "binary"},
-            {"key": "reposicao_agil_salao", "label": "A reposição no salão está sendo feita com agilidade?", "type": "binary"},
-            {"key": "ruptura_best_sellers", "label": "A loja está sem ruptura de best sellers?", "type": "binary"},
-            {"key": "pecas_defeito_separadas", "label": "As peças com defeito estão separadas corretamente?", "type": "binary"},
-            {"key": "transferencias_solicitadas_em_dia", "label": "As transferências solicitadas estão em dia?", "type": "binary"},
-        ],
-    },
+{
+    "name": "Estoque e Produto",
+    "observation_key": "observacoes_estoque_produto",
+    "photo_key": "foto_estoque_produto",
+    "questions": [
+        {"key": "estoque_organizado_limpo", "label": "O estoque está organizado e limpo?", "type": "binary"},
+        {"key": "reposicao_agil_salao", "label": "A reposição no salão está sendo feita com agilidade?", "type": "binary"},
+        {"key": "ruptura_best_sellers", "label": "A loja está sem ruptura de best sellers?", "type": "binary"},
+        {"key": "pecas_defeito_separadas", "label": "As peças com defeito estão separadas corretamente?", "type": "binary"},
+        {"key": "transferencias_solicitadas_em_dia", "label": "As transferências solicitadas estão em dia?", "type": "binary"},
+        {"key": "acuracidade_estoque_5_itens", "label": "A conferência de 5 itens aleatórios apresentou acuracidade entre estoque físico e sistema?", "type": "binary"},
+    ],
+},
     {
         "name": "Resultados e Indicadores",
         "observation_key": "observacoes_resultados",
