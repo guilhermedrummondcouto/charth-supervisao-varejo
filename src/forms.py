@@ -1,18 +1,27 @@
 from __future__ import annotations
+
 from datetime import date
+
 import streamlit as st
-from html import escape
-from .calculations import compute_bonus, compute_section_scores, compute_weighted_score, status_from_weighted
+
+from .calculations import compute_section_scores, compute_weighted_score, status_from_weighted
 from .config import DNA_OPTIONS, FORM_SECTIONS, MANAGERS, STORES, STRATEGIC_FIELDS
 from .db import insert_evaluation, save_uploaded_file
 from .ui import header
 
 
-def _section_header(number: int, title: str, description: str = "Avaliação oficial de performance da loja") -> None:
+def _section_header(
+    number: int,
+    title: str,
+    description: str = "Avaliação oficial de performance da loja",
+    total: int | None = None,
+) -> None:
+    """Renderiza o cabeçalho da seção com numeração automática."""
+    total_sections = total or (len(FORM_SECTIONS) + 2)
     st.markdown(
         f"""
         <div class="charth-section-header">
-            <div class="charth-section-number">Seção {number} de 11</div>
+            <div class="charth-section-number">Seção {number} de {total_sections}</div>
             <div class="charth-section-title">{title}</div>
             <div class="charth-field-hint">{description}</div>
         </div>
@@ -94,11 +103,14 @@ def render_evaluation_form(user: dict) -> None:
             c1, c2 = st.columns(2)
             with c1:
                 evaluation_date = st.date_input(
-    "Data",
-    value=date.today(),
-    format="DD/MM/YYYY",
-)
-                supervisor = st.text_input("Supervisora", value=user.get("name", "") if user.get("role") == "supervisora" else "")
+                    "Data",
+                    value=date.today(),
+                    format="DD/MM/YYYY",
+                )
+                supervisor = st.text_input(
+                    "Supervisora",
+                    value=user.get("name", "") if user.get("role") == "supervisora" else "",
+                )
             with c2:
                 manager = st.selectbox("Gerente de Loja", MANAGERS)
                 store = st.selectbox("Loja", STORES)
@@ -106,15 +118,17 @@ def render_evaluation_form(user: dict) -> None:
         scores: dict[str, float] = {}
         observations: dict[str, str] = {}
         photo_uploads: dict[str, object] = {}
+
         for idx, section in enumerate(FORM_SECTIONS, start=2):
             _section_header(idx, section["name"])
             with st.container(border=True):
                 questions = section["questions"]
                 for i in range(0, len(questions), 2):
                     cols = st.columns(2)
-                    for col, q in zip(cols, questions[i:i+2]):
+                    for col, q in zip(cols, questions[i:i + 2]):
                         with col:
                             scores[q["key"]] = score_input(q, section["name"])
+
                 if section.get("photo_key"):
                     photo_key = section["photo_key"]
                     st.markdown("#### Evidência visual")
@@ -123,18 +137,41 @@ def render_evaluation_form(user: dict) -> None:
                         type=["png", "jpg", "jpeg", "webp"],
                         key=f"upload_{photo_key}",
                     )
+
                 observations[section["observation_key"]] = st.text_area(
-                    f"Observações {section['name']}", key=f"obs_{section['observation_key']}", height=100,
-                    placeholder="Registre aqui os principais pontos observados, combinados e oportunidades de evolução."
+                    f"Observações {section['name']}",
+                    key=f"obs_{section['observation_key']}",
+                    height=100,
+                    placeholder="Registre aqui os principais pontos observados, combinados e oportunidades de evolução.",
                 )
 
-        _section_header(11, "Perguntas Estratégicas", "Síntese qualitativa para gestão e evolução da loja")
+        _section_header(
+            len(FORM_SECTIONS) + 2,
+            "Perguntas Estratégicas",
+            "Síntese qualitativa para gestão e evolução da loja",
+        )
         with st.container(border=True):
             strategic = {}
             for field in STRATEGIC_FIELDS:
-                strategic[field["key"]] = st.text_area(field["label"], key=f"strategic_{field['key']}", height=90)
-            strategic["dna_charth"] = st.radio("A loja representa o DNA da Charth?", DNA_OPTIONS, horizontal=True)
-            grave_issue = st.radio("Houve falta grave disciplinar no período avaliado?", ["Não", "Sim"], horizontal=True) == "Sim"
+                strategic[field["key"]] = st.text_area(
+                    field["label"],
+                    key=f"strategic_{field['key']}",
+                    height=90,
+                )
+
+            strategic["dna_charth"] = st.radio(
+                "A loja representa o DNA da Charth?",
+                DNA_OPTIONS,
+                horizontal=True,
+            )
+            grave_issue = (
+                st.radio(
+                    "Houve falta grave disciplinar no período avaliado?",
+                    ["Não", "Sim"],
+                    horizontal=True,
+                )
+                == "Sim"
+            )
 
         submitted = st.form_submit_button("Salvar avaliação", use_container_width=True)
 
@@ -142,10 +179,11 @@ def render_evaluation_form(user: dict) -> None:
         if not supervisor.strip() or not manager.strip():
             st.error("Preencha Supervisora e Gerente de Loja antes de salvar.")
             return
+
         section_scores = compute_section_scores(scores)
         weighted_score = compute_weighted_score(section_scores)
         overall_status = status_from_weighted(weighted_score)
-        bonus = compute_bonus(section_scores, weighted_score, grave_issue)
+
         evidence_paths: dict[str, str] = {}
         for photo_key, uploaded_file in photo_uploads.items():
             if uploaded_file:
@@ -169,11 +207,12 @@ def render_evaluation_form(user: dict) -> None:
                 "section_scores": section_scores,
                 "weighted_score": weighted_score,
                 "overall_status": overall_status,
-                "bonus": bonus,
+                "bonus": {},
                 "grave_disciplinary_issue": grave_issue,
                 "photo_vm_path": photo_path,
                 "created_by": user.get("username"),
             }
         )
+
         st.success(f"Avaliação #{evaluation_id} salva com sucesso.")
-        st.info(f"Média ponderada: {weighted_score:.2f} · Status: {overall_status} · Bonificação: {bonus['level']}")
+        st.info(f"Média ponderada: {weighted_score:.2f} · Status: {overall_status}")
