@@ -1,11 +1,10 @@
 from __future__ import annotations
 from datetime import date
-from html import escape
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from .calculations import status_from_weighted
-from .config import FORM_SECTIONS, GESTORA_CAN_VIEW_ALL_STORES, ROLE_ADMIN, ROLE_GESTORA, ROLE_SUPERVISORA, STORES
+from .calculations import result_meta_reference, status_from_weighted
+from .config import BONUS_CONFIG, FORM_SECTIONS, GESTORA_CAN_VIEW_ALL_STORES, ROLE_ADMIN, ROLE_GESTORA, STORES
 from .db import action_plans_df, delete_evaluation, evaluations_df, export_flattened_evaluations
 from .ui import header, metric_card
 
@@ -261,9 +260,9 @@ def dashboard_page(user: dict) -> None:
     st.markdown(
         """
         <div class="charth-dashboard-note">
-            <strong>Regra de status operacional:</strong>
-            Excelência CHARTH ≥ 9, Loja Forte ≥ 8, Loja em Atenção ≥ 7 e Plano de Ação Imediato abaixo de 7.
-            As pendências ficam concentradas no menu <strong>Planos de Ação</strong>.
+            <strong>:</strong>
+            #MUITO CHARTH ≥ 9, Loja Forte ≥ 8, Loja em Atenção ≥ 7 e Plano de Ação Imediato abaixo de 7.
+             As pendências ficam concentradas no menu <strong>Planos de Ação</strong>.
         </div>
         """,
         unsafe_allow_html=True,
@@ -436,9 +435,7 @@ def history_page(user: dict) -> None:
         df = df.sort_values(["evaluation_date", "id"], ascending=[False, False])
 
     st.markdown("### Resumo das avaliações")
-    summary = df[["id", "evaluation_date", "store", "supervisor", "manager", "weighted_score", "overall_status"]].copy()
-    summary["evaluation_date"] = pd.to_datetime(summary["evaluation_date"], errors="coerce").dt.strftime("%d/%m/%Y")
-    summary = summary.rename(
+    summary = df[["id", "evaluation_date", "store", "supervisor", "manager", "weighted_score", "overall_status", "bonus_level", "manager_bonus"]].rename(
         columns={
             "id": "ID",
             "evaluation_date": "Data",
@@ -447,6 +444,8 @@ def history_page(user: dict) -> None:
             "manager": "Gerente",
             "weighted_score": "Média",
             "overall_status": "Status",
+            "bonus_level": "Bônus",
+            "manager_bonus": "Valor gerente",
         }
     )
     st.dataframe(summary, use_container_width=True, hide_index=True)
@@ -465,7 +464,8 @@ def history_page(user: dict) -> None:
                 <strong>Gerente:</strong> {row['manager']} &nbsp; | &nbsp;
                 <strong>Supervisora:</strong> {row['supervisor']}<br>
                 <strong>Média ponderada:</strong> {row['weighted_score']:.2f} &nbsp; | &nbsp;
-                <strong>Status:</strong> {row['overall_status']}
+                <strong>Status:</strong> {row['overall_status']} &nbsp; | &nbsp;
+                <strong>Bônus:</strong> {row['bonus_level']}
             </div>
         </div>
         """,
@@ -489,12 +489,6 @@ def history_page(user: dict) -> None:
                         <div class="charth-section-row">
                             <div class="charth-section-name">{section_name}</div>
                             <div>{_score_badge(score)}</div>
-            <div class="charth-suggestion-grid">
-                <div class="charth-suggestion-item"><strong>Ponto identificado</strong>{escape(str(row.get('problem_text') or row.get('question_label') or ''))}</div>
-                <div class="charth-suggestion-item"><strong>Impacto na loja</strong>{escape(str(row.get('impact_text') or 'Impacto não informado.'))}</div>
-                <div class="charth-suggestion-item"><strong>Ação recomendada</strong>{escape(str(row.get('recommended_action') or 'Ação não informada.'))}</div>
-                <div class="charth-suggestion-item"><strong>Como validar</strong>{escape(str(row.get('validation_criteria') or 'Validação não informada.'))}</div>
-            </div>
                         </div>
                         """,
                         unsafe_allow_html=True,
@@ -550,7 +544,6 @@ def _priority_badge(priority: str) -> str:
     """
 
 
-
 def _status_badge(status: str) -> str:
     color = {
         "Aberto": "#9E3F45",
@@ -571,15 +564,12 @@ def _render_action_css() -> None:
         """
         <style>
         .charth-action-card {
-            background:linear-gradient(135deg, #FFFDFC 0%, #FFFFFF 100%);
+            background:#fff;
             border:1px solid rgba(109,110,113,.16);
-            border-radius:20px;
+            border-radius:18px;
             padding:18px 20px;
             margin-bottom:14px;
             box-shadow:0 12px 28px rgba(31,31,31,.035);
-        }
-        .charth-action-card-overdue {
-            border-left:5px solid #7F3438;
         }
         .charth-action-top {
             display:flex;
@@ -637,70 +627,21 @@ def _render_action_css() -> None:
             padding:16px 18px;
             margin-bottom:16px;
         }
-        .charth-followup-box {
-            background:#FFFDFC;
-            border:1px dashed rgba(109,110,113,.28);
-            border-radius:14px;
-            padding:12px 14px;
-            margin-top:12px;
-            color:#343434;
-            font-size:13px;
-            line-height:1.55;
-            white-space:pre-wrap;
-        }
-        .charth-suggestion-grid {
-            display:grid;
-            grid-template-columns:repeat(2, minmax(0,1fr));
-            gap:10px;
-            margin-top:14px;
-        }
-        .charth-suggestion-item {
-            background:#FFFDFC;
-            border:1px solid rgba(201,160,160,.24);
-            border-radius:14px;
-            padding:12px 14px;
-            color:#343434;
-            font-size:13px;
-            line-height:1.52;
-        }
-        .charth-suggestion-item strong {
-            display:block;
-            color:#1F1F1F;
-            font-size:11px;
-            letter-spacing:.08em;
-            text-transform:uppercase;
-            margin-bottom:5px;
-        }
-        @media (max-width: 760px) {
-            .charth-action-top { display:block; }
-            .charth-action-meta { grid-template-columns:1fr; }
-            .charth-suggestion-grid { grid-template-columns:1fr; }
-        }
         </style>
         """,
         unsafe_allow_html=True,
     )
 
 
-def _is_plan_overdue(row: pd.Series) -> bool:
-    deadline = row.get("deadline")
-    status = str(row.get("status") or "")
-    if status in {"Concluído", "Cancelado"} or pd.isna(deadline):
-        return False
-    return pd.to_datetime(deadline).date() < date.today()
-
-
-def _render_action_card(row: pd.Series, show_log: bool = False) -> None:
+def _render_action_card(row: pd.Series) -> None:
     score = float(row.get("score") or 0)
     deadline = row.get("deadline")
-    overdue = _is_plan_overdue(row)
+    overdue = pd.notna(deadline) and deadline.date() < date.today() and row.get("status") != "Concluído"
     overdue_text = " · Vencido" if overdue else ""
-    overdue_color = "#7F3438" if overdue else "#6D6E71"
-    card_class = "charth-action-card charth-action-card-overdue" if overdue else "charth-action-card"
-    updated = _format_date_br(row.get("updated_at")) if row.get("updated_at") is not None else "Sem atualização"
+    overdue_color = "#9E3F45" if overdue else "#6D6E71"
     st.markdown(
         f"""
-        <div class="{card_class}">
+        <div class="charth-action-card">
             <div class="charth-action-top">
                 <div>
                     <div class="charth-action-subtitle">Plano #{int(row['id'])} · {row.get('store','')}</div>
@@ -714,153 +655,372 @@ def _render_action_card(row: pd.Series, show_log: bool = False) -> None:
                 <div><span>Responsável</span>{row.get('responsible') or 'Não definido'}</div>
                 <div><span>Prazo</span><span style="display:inline;color:{overdue_color};font-size:13px;text-transform:none;letter-spacing:0;font-weight:700;">{_format_date_br(deadline)}{overdue_text}</span></div>
                 <div><span>Prioridade</span>{row.get('priority','')}</div>
-                <div><span>Última atualização</span>{updated}</div>
+                <div><span>Status</span>{row.get('status','')}</div>
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    if show_log and str(row.get("followup_log") or "").strip():
-        st.markdown(
-            f"""
-            <div class="charth-followup-box"><strong>Histórico de acompanhamento</strong>\n{row.get('followup_log')}</div>
-            """,
-            unsafe_allow_html=True,
+
+
+def _action_suggestion(row: pd.Series) -> tuple[str, str]:
+    """Sugestões práticas exibidas no próprio plano, sem alterar o banco."""
+    key = str(row.get("question_key") or "")
+    section = str(row.get("section") or "")
+    label = str(row.get("question_label") or "")
+
+    suggestions = {
+        "acuracidade_estoque_5_itens": (
+            "Recontar os 5 itens conferidos, registrar divergências entre físico e sistema, identificar a origem da diferença e solicitar ajuste/correção no processo.",
+            "Informar referência/código dos 5 itens, quantidade física, quantidade no sistema, diferença encontrada e ação tomada. Na próxima visita, repetir nova amostra para validar a correção.",
+        ),
+        "ruptura_best_sellers": (
+            "Levantar os best sellers ausentes, consultar disponibilidade em outras lojas/estoque central e solicitar reposição ou transferência.",
+            "Registrar produto, cor/tamanho, quantidade faltante, loja origem/destino e data da solicitação de reposição ou transferência.",
+        ),
+        "transferencias_solicitadas_em_dia": (
+            "Revisar todas as transferências pendentes, separar o que depende da loja e o que depende de outra unidade, e atualizar a responsável pelo envio/recebimento.",
+            "Registrar transferências em atraso, responsável, motivo do atraso e nova data combinada.",
+        ),
+        "reposicao_agil_salao": (
+            "Organizar uma rotina de conferência do salão por períodos do dia, definindo responsável para reposição rápida dos produtos vendidos ou provados.",
+            "Registrar horários de conferência, responsável e principais produtos repostos.",
+        ),
+        "estoque_organizado_limpo": (
+            "Reorganizar o estoque por categoria, coleção, tamanho e giro, eliminando acúmulos e deixando o acesso aos produtos mais vendidos mais rápido.",
+            "Enviar foto antes/depois e registrar responsáveis pela organização.",
+        ),
+        "pecas_defeito_separadas": (
+            "Separar imediatamente as peças com defeito, identificar o tipo de problema e definir destino: ajuste, troca, devolução ou baixa conforme orientação interna.",
+            "Registrar referência, quantidade, defeito identificado e destino definido.",
+        ),
+        "araras_penteadas": (
+            "Revisar todas as araras, padronizar espaçamento, sequência visual e apresentação das peças conforme orientação de VM.",
+            "Enviar foto após ajuste e registrar ponto da loja corrigido.",
+        ),
+        "vitrine_gera_desejo": (
+            "Reavaliar composição da vitrine, escolhendo looks com maior força comercial, melhor coordenação visual e clareza de proposta.",
+            "Enviar foto da vitrine ajustada e registrar peças foco utilizadas.",
+        ),
+        "preco_visivel_sem_poluicao": (
+            "Revisar etiquetas e comunicação de preço para garantir visibilidade sem excesso visual no salão.",
+            "Registrar pontos corrigidos e foto da área ajustada.",
+        ),
+        "manequins_bem_montados": (
+            "Recompor manequins com styling estratégico, priorizando peças foco, proporção, acabamento e desejo de compra.",
+            "Enviar foto dos manequins antes/depois e registrar peças utilizadas.",
+        ),
+        "meta_semanal_acompanhada": (
+            "Criar rotina diária de acompanhamento da meta semanal, com leitura do realizado, falta para bater e ação comercial do dia.",
+            "Registrar meta, realizado, diferença e ação definida para recuperação.",
+        ),
+        "gerente_plano_acao_abaixo_meta": (
+            "Formalizar plano de ação comercial quando a loja estiver abaixo da meta, com responsáveis, prazos e acompanhamento diário.",
+            "Registrar ação, responsável, prazo e resultado esperado.",
+        ),
+        "ticket_medio_meta": (
+            "Trabalhar composição de looks, venda adicional e argumentação de valor para elevar ticket médio.",
+            "Registrar estratégia aplicada e acompanhar ticket médio nos próximos dias.",
+        ),
+        "pa_meta": (
+            "Reforçar oferta de terceira peça, acessórios, variação de cor e complementos para elevar PA.",
+            "Registrar prática combinada com equipe e resultado acompanhado.",
+        ),
+        "conversao_monitorada": (
+            "Acompanhar fluxo, atendimentos e vendas por período para identificar horários de baixa conversão e agir com abordagem mais ativa.",
+            "Registrar conversão observada, horário crítico e ação definida.",
+        ),
+        "reuniao_diaria_registrada": (
+            "Implantar reunião rápida diária com meta, foco comercial, pontos de atenção e registro do combinado.",
+            "Registrar data, participantes e principais combinados.",
+        ),
+        "feedback_individual_mes": (
+            "Programar feedback individual com cada pessoa da equipe, conectando comportamento, resultado e plano de evolução.",
+            "Registrar data prevista, colaboradora e tema principal do feedback.",
+        ),
+        "plano_acao_documentado": (
+            "Documentar o plano de ação da loja com prioridade, responsável, prazo e status de acompanhamento.",
+            "Registrar plano, responsável e data da próxima validação.",
+        ),
+    }
+
+    if key in suggestions:
+        return suggestions[key]
+
+    if "Estoque" in section:
+        return (
+            "Revisar o processo operacional relacionado ao ponto apontado, identificar causa da falha e definir responsável pela correção.",
+            "Registrar item/produto envolvido, causa provável, responsável e prazo de correção.",
+        )
+    if "Visual" in section:
+        return (
+            "Revisar a execução visual no salão, corrigir apresentação e validar se o padrão de marca ficou claro para a cliente.",
+            "Enviar foto após a correção e registrar a área ajustada.",
+        )
+    if "Resultados" in section:
+        return (
+            "Definir ação comercial objetiva para recuperar o indicador, com acompanhamento diário pela gerente.",
+            "Registrar indicador impactado, ação definida, responsável e evolução esperada.",
+        )
+    if "Gestão" in section:
+        return (
+            "Formalizar rotina de gestão para o ponto indicado, com combinado claro, responsável e acompanhamento na próxima visita.",
+            "Registrar combinado, responsável e data da próxima checagem.",
         )
 
+    return (
+        f"Tratar o ponto indicado: {label}. Definir causa, responsável, prazo e evidência de correção.",
+        "Registrar o que foi feito, quem ficou responsável e como será validado na próxima visita.",
+    )
 
-def _user_can_update_action_plan(user: dict) -> bool:
-    return user.get("role") in {ROLE_ADMIN, ROLE_SUPERVISORA}
+
+def _plan_is_overdue(row: pd.Series) -> bool:
+    deadline = row.get("deadline")
+    status = str(row.get("status") or "")
+    return pd.notna(deadline) and pd.to_datetime(deadline).date() < date.today() and status not in {"Concluído", "Cancelado"}
 
 
-def _filter_action_plans_for_user(plans: pd.DataFrame, user: dict) -> pd.DataFrame:
-    if plans.empty:
-        return plans
-    if user.get("role") == ROLE_GESTORA and not GESTORA_CAN_VIEW_ALL_STORES:
-        return plans[plans["store"] == user.get("store")]
-    return plans
+def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
+    from .db import update_action_plan
+
+    plan_id = int(row["id"])
+    score = float(row.get("score") or 0)
+    overdue = _plan_is_overdue(row)
+    action_text, evidence_text = _action_suggestion(row)
+    can_update = user.get("role") != ROLE_GESTORA
+
+    title = f"Plano #{plan_id} · {row.get('store','')} · {row.get('section','')}"
+    if overdue:
+        title += " · VENCIDO"
+
+    with st.expander(title, expanded=overdue or str(row.get("priority")) == "Alta"):
+        c_top1, c_top2, c_top3 = st.columns([1.2, 1, 1])
+        with c_top1:
+            st.markdown("**Ponto de atenção**")
+            st.write(row.get("question_label", ""))
+        with c_top2:
+            st.markdown("**Nota / resposta**")
+            st.markdown(_score_badge(score), unsafe_allow_html=True)
+        with c_top3:
+            st.markdown("**Situação atual**")
+            st.markdown(f"{_priority_badge(row.get('priority',''))} &nbsp; {_status_badge(row.get('status',''))}", unsafe_allow_html=True)
+
+        st.markdown("#### Ação sugerida")
+        st.info(action_text)
+        st.markdown("#### Evidência esperada")
+        st.caption(evidence_text)
+
+        c_meta1, c_meta2, c_meta3, c_meta4 = st.columns(4)
+        with c_meta1:
+            st.metric("Loja", str(row.get("store") or "-"))
+        with c_meta2:
+            st.metric("Prioridade", str(row.get("priority") or "-"))
+        with c_meta3:
+            st.metric("Prazo", _format_date_br(row.get("deadline")))
+        with c_meta4:
+            st.metric("Status", str(row.get("status") or "-"))
+
+        current_notes = str(row.get("notes") or "")
+        if can_update:
+            st.markdown("#### Atualizar este plano")
+            status_options = ["Aberto", "Em andamento", "Reprogramado", "Concluído", "Cancelado"]
+            current_status = str(row.get("status") or "Aberto")
+            if current_status not in status_options:
+                status_options.insert(0, current_status)
+
+            c1, c2, c3 = st.columns([1, 1.2, 1])
+            with c1:
+                new_status = st.selectbox(
+                    "Status",
+                    status_options,
+                    index=status_options.index(current_status),
+                    key=f"status_plan_{plan_id}",
+                )
+            with c2:
+                new_responsible = st.text_input(
+                    "Responsável",
+                    value=str(row.get("responsible") or ""),
+                    key=f"responsible_plan_{plan_id}",
+                )
+            with c3:
+                default_deadline = pd.to_datetime(row.get("deadline")).date() if pd.notna(row.get("deadline")) else date.today()
+                new_deadline = st.date_input(
+                    "Novo prazo",
+                    value=default_deadline,
+                    format="DD/MM/YYYY",
+                    key=f"deadline_plan_{plan_id}",
+                )
+
+            suggested_note = (
+                current_notes
+                if current_notes.strip()
+                else f"Ação sugerida: {action_text}\nEvidência esperada: {evidence_text}\nAcompanhamento: "
+            )
+            new_notes = st.text_area(
+                "Comentário / acompanhamento",
+                value=suggested_note,
+                height=140,
+                key=f"notes_plan_{plan_id}",
+                help="Use este campo para registrar o que foi combinado, evidências, justificativa de prazo e evolução do plano.",
+            )
+
+            requires_comment = new_status == "Reprogramado" or new_deadline != default_deadline
+            if requires_comment:
+                st.caption("Como houve reprogramação de prazo/status, registre a justificativa no comentário.")
+
+            if st.button("Salvar alteração deste plano", use_container_width=True, key=f"save_plan_{plan_id}"):
+                if requires_comment and not new_notes.strip():
+                    st.warning("Informe uma justificativa no comentário para reprogramar o plano.")
+                else:
+                    update_action_plan(plan_id, new_status, new_responsible, new_deadline.isoformat(), new_notes)
+                    st.success(f"Plano #{plan_id} atualizado com sucesso.")
+                    st.rerun()
+        else:
+            st.markdown("#### Comentário / acompanhamento")
+            st.write(current_notes or "Sem comentário registrado.")
+            st.caption("Gestoras visualizam os planos. Alteração de status, prazo e conclusão fica com a supervisora/admin.")
 
 
 def action_plans_page(user: dict) -> None:
-    from .db import update_action_plan
-
     _render_history_css()
     _render_action_css()
-    header("Planos de Ação", "Gestão de pendências, prazos, responsáveis e evolução por loja.")
+    header("Planos de Ação", "Acompanhamento das pendências geradas por notas abaixo do padrão, com edição por plano.")
 
     st.markdown(
         """
         <div class="charth-rule-card">
-            <div class="charth-kicker">Como usar esta página</div>
+            <div class="charth-kicker">Como usar</div>
             <div class="charth-history-card-body">
-                Cada plano nasce automaticamente de uma pergunta abaixo do padrão e já vem com <strong>ponto identificado</strong>,
-                <strong>impacto na loja</strong>, <strong>ação recomendada</strong> e <strong>forma de validação</strong>. Admin e Supervisora podem atualizar status, prazo, responsável e acompanhamento.
+                Clique em cada plano para abrir os detalhes, ver a ação sugerida, registrar acompanhamento, alterar status e redefinir prazo.
+                Supervisora e Admin podem editar. Gestoras acompanham os planos da loja.
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    plans = _filter_action_plans_for_user(action_plans_df(), user)
+    evaluations = filter_df_for_user(evaluations_df(), user)
+    if not evaluations.empty:
+        latest = evaluations.sort_values(["evaluation_date", "id"], ascending=[False, False]).drop_duplicates("store")
+        latest = latest[["store", "evaluation_date", "weighted_score"]].copy()
+        latest["status_operacional"] = latest["weighted_score"].apply(status_from_weighted)
+        latest["evaluation_date"] = latest["evaluation_date"].dt.strftime("%d/%m/%Y")
+        with st.expander("Status operacional mais recente por loja", expanded=False):
+            st.dataframe(
+                latest.rename(columns={
+                    "store": "Loja",
+                    "evaluation_date": "Última avaliação",
+                    "weighted_score": "Média geral",
+                    "status_operacional": "Status operacional",
+                }),
+                use_container_width=True,
+                hide_index=True,
+            )
+
+    plans = action_plans_df()
     if plans.empty:
         st.info("Nenhum plano de ação gerado até o momento.")
         return
 
-    plans = plans.copy()
-    for col in ["status", "priority", "store", "section", "responsible", "notes", "followup_log", "problem_text", "impact_text", "recommended_action", "validation_criteria"]:
-        if col not in plans.columns:
-            plans[col] = ""
-    plans["status"] = plans["status"].fillna("Aberto").replace("", "Aberto")
-    plans["priority"] = plans["priority"].fillna("Monitoramento")
-    plans["is_overdue"] = plans.apply(_is_plan_overdue, axis=1)
+    if user.get("role") == ROLE_GESTORA and not GESTORA_CAN_VIEW_ALL_STORES:
+        plans = plans[plans["store"] == user.get("store")]
 
-    status_options = ["Aberto", "Em andamento", "Reprogramado", "Concluído", "Cancelado"]
-    priority_options = ["Alta", "Média", "Baixa", "Monitoramento"]
+    if plans.empty:
+        st.info("Não há planos de ação para o seu perfil de acesso.")
+        return
+
+    plans = plans.copy()
+    plans["_overdue"] = plans.apply(_plan_is_overdue, axis=1)
+
+    status_options_all = ["Aberto", "Em andamento", "Reprogramado", "Concluído", "Cancelado"]
+    existing_statuses = [s for s in plans["status"].dropna().unique().tolist() if s not in status_options_all]
+    status_options = status_options_all + existing_statuses
 
     with st.expander("Filtros", expanded=True):
         c1, c2, c3, c4 = st.columns(4)
         with c1:
-            store_options = sorted(plans["store"].dropna().unique().tolist())
-            stores = st.multiselect("Loja", store_options, default=store_options)
+            available_stores = sorted(plans["store"].dropna().unique().tolist())
+            stores = st.multiselect("Loja", available_stores, default=available_stores)
         with c2:
-            statuses = st.multiselect("Status", status_options, default=["Aberto", "Em andamento", "Reprogramado"])
+            default_status = [s for s in ["Aberto", "Em andamento", "Reprogramado"] if s in status_options]
+            statuses = st.multiselect("Status", status_options, default=default_status or status_options)
         with c3:
+            priority_options = ["Alta", "Média", "Baixa", "Monitoramento"]
             priorities = st.multiselect("Prioridade", priority_options, default=priority_options)
         with c4:
-            overdue_only = st.checkbox("Mostrar somente vencidos", value=False)
+            only_overdue = st.checkbox("Mostrar só vencidos", value=False)
 
     filtered = plans[
         plans["store"].isin(stores)
         & plans["status"].isin(statuses)
         & plans["priority"].isin(priorities)
     ].copy()
-    if overdue_only:
-        filtered = filtered[filtered["is_overdue"]]
+    if only_overdue:
+        filtered = filtered[filtered["_overdue"]]
 
     if filtered.empty:
         st.warning("Nenhum plano encontrado para os filtros selecionados.")
         return
 
     open_mask = ~filtered["status"].isin(["Concluído", "Cancelado"])
-    overdue_mask = filtered["is_overdue"]
+    overdue_mask = filtered["_overdue"]
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         metric_card("Planos filtrados", str(len(filtered)), "Total no recorte")
     with c2:
-        metric_card("Em aberto", str(int(open_mask.sum())), "Ainda exigem acompanhamento")
+        metric_card("Em aberto", str(int(open_mask.sum())), "Não concluídos")
     with c3:
         metric_card("Prioridade alta", str(int((filtered["priority"] == "Alta").sum())), "Demandas críticas")
     with c4:
-        metric_card("Vencidos", str(int(overdue_mask.sum())), "Prazo anterior a hoje")
+        metric_card("Vencidos", str(int(overdue_mask.sum())), "Precisam de retorno")
 
-    st.markdown("### Visão por status")
-    tab_labels = ["Abertos", "Em andamento", "Reprogramados", "Vencidos", "Concluídos", "Todos"]
-    tabs = st.tabs(tab_labels)
-    tab_filters = {
-        "Abertos": filtered[filtered["status"] == "Aberto"],
-        "Em andamento": filtered[filtered["status"] == "Em andamento"],
-        "Reprogramados": filtered[filtered["status"] == "Reprogramado"],
-        "Vencidos": filtered[filtered["is_overdue"]],
-        "Concluídos": filtered[filtered["status"] == "Concluído"],
-        "Todos": filtered,
-    }
     sort_order = {"Alta": 0, "Média": 1, "Baixa": 2, "Monitoramento": 3}
-    for tab, label in zip(tabs, tab_labels):
-        with tab:
-            view = tab_filters[label].copy()
-            if view.empty:
-                st.caption("Nenhum plano neste grupo.")
-            else:
-                view["_priority_order"] = view["priority"].map(sort_order).fillna(9)
-                view = view.sort_values(["is_overdue", "_priority_order", "deadline", "id"], ascending=[False, True, True, False])
-                for _, row in view.iterrows():
-                    _render_action_card(row, show_log=False)
+    filtered["_priority_order"] = filtered["priority"].map(sort_order).fillna(9)
+    filtered = filtered.sort_values(["_overdue", "_priority_order", "deadline", "id"], ascending=[False, True, True, False])
+
+    tab_open, tab_progress, tab_reprogrammed, tab_overdue, tab_done, tab_all = st.tabs([
+        "Abertos",
+        "Em andamento",
+        "Reprogramados",
+        "Vencidos",
+        "Concluídos",
+        "Todos",
+    ])
+
+    def render_subset(subset: pd.DataFrame, empty_msg: str) -> None:
+        if subset.empty:
+            st.caption(empty_msg)
+            return
+        for _, row in subset.iterrows():
+            _render_editable_action_plan(row, user)
+
+    with tab_open:
+        render_subset(filtered[filtered["status"] == "Aberto"], "Nenhum plano aberto neste filtro.")
+    with tab_progress:
+        render_subset(filtered[filtered["status"] == "Em andamento"], "Nenhum plano em andamento neste filtro.")
+    with tab_reprogrammed:
+        render_subset(filtered[filtered["status"] == "Reprogramado"], "Nenhum plano reprogramado neste filtro.")
+    with tab_overdue:
+        render_subset(filtered[filtered["_overdue"]], "Nenhum plano vencido neste filtro.")
+    with tab_done:
+        render_subset(filtered[filtered["status"].isin(["Concluído", "Cancelado"])], "Nenhum plano concluído ou cancelado neste filtro.")
+    with tab_all:
+        render_subset(filtered, "Nenhum plano neste filtro.")
 
     st.markdown("### Tabela para exportação")
-    export_cols = ["id", "store", "section", "question_label", "problem_text", "impact_text", "recommended_action", "validation_criteria", "score", "priority", "responsible", "deadline", "status", "notes", "updated_by", "updated_at"]
-    for col in export_cols:
-        if col not in filtered.columns:
-            filtered[col] = ""
-    table = filtered[export_cols].copy()
+    table = filtered[["id", "store", "section", "question_label", "score", "priority", "responsible", "deadline", "status", "notes"]].copy()
     table["deadline"] = table["deadline"].apply(_format_date_br)
-    table["updated_at"] = table["updated_at"].apply(_format_date_br)
     table = table.rename(columns={
         "id": "ID",
         "store": "Loja",
         "section": "Seção",
-        "question_label": "Pergunta de origem",
-        "problem_text": "Ponto identificado",
-        "impact_text": "Impacto na loja",
-        "recommended_action": "Ação recomendada",
-        "validation_criteria": "Como validar",
+        "question_label": "Ponto de atenção",
         "score": "Nota",
         "priority": "Prioridade",
         "responsible": "Responsável",
         "deadline": "Prazo",
         "status": "Status",
         "notes": "Observações",
-        "updated_by": "Atualizado por",
-        "updated_at": "Última atualização",
     })
     st.dataframe(table, use_container_width=True, hide_index=True)
     st.download_button(
@@ -870,52 +1030,3 @@ def action_plans_page(user: dict) -> None:
         mime="text/csv",
         use_container_width=True,
     )
-
-    if not _user_can_update_action_plan(user):
-        st.caption("Gestoras visualizam os planos. A alteração de status, prazo e conclusão fica com Admin e Supervisora.")
-        return
-
-    st.markdown("### Atualizar plano")
-    plan_id = st.selectbox(
-        "Plano de ação",
-        filtered["id"].tolist(),
-        format_func=lambda x: f"Plano #{x} · {filtered[filtered['id'] == x].iloc[0]['store']} · {filtered[filtered['id'] == x].iloc[0]['section']}",
-    )
-    selected = filtered[filtered["id"] == plan_id].iloc[0]
-    _render_action_card(selected, show_log=True)
-
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        status = st.selectbox("Novo status", status_options, index=status_options.index(selected["status"]) if selected["status"] in status_options else 0)
-    with c2:
-        responsible = st.text_input("Responsável", value=selected.get("responsible") or "")
-    with c3:
-        deadline_value = selected["deadline"].date() if pd.notna(selected["deadline"]) else date.today()
-        deadline = st.date_input("Novo prazo", value=deadline_value, format="DD/MM/YYYY")
-
-    notes = st.text_area("Observações fixas do plano", value=selected.get("notes") or "", height=100)
-    followup_note = st.text_area(
-        "Comentário de acompanhamento desta atualização",
-        placeholder="Ex.: prazo reprogramado porque depende de manutenção externa; item será reavaliado na próxima visita.",
-        height=100,
-    )
-
-    needs_reason = status == "Reprogramado" or (pd.notna(selected.get("deadline")) and deadline != selected["deadline"].date())
-    if needs_reason:
-        st.caption("Como houve reprogramação de prazo/status, registre o motivo no comentário de acompanhamento.")
-
-    if st.button("Salvar atualização do plano", use_container_width=True):
-        if needs_reason and not followup_note.strip():
-            st.warning("Informe o motivo da reprogramação no comentário de acompanhamento.")
-            return
-        update_action_plan(
-            int(plan_id),
-            status=status,
-            responsible=responsible,
-            deadline=deadline.isoformat(),
-            notes=notes,
-            updated_by=user.get("username") or user.get("name") or "Usuário",
-            followup_note=followup_note,
-        )
-        st.success("Plano atualizado com sucesso.")
-        st.rerun()
