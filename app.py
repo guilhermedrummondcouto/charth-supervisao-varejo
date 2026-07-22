@@ -1,12 +1,14 @@
 from __future__ import annotations
+
 import streamlit as st
+
 from src.auth import can_admin, can_edit, logout_button, require_login
 from src.config import APP_NAME
 from src.dashboard import action_plans_page, dashboard_page, history_page
-from src.db import backup_database, init_db, list_users_df, update_user_password, database_mode_label
+from src.db import backup_database, database_mode_label, init_db, list_users_df, update_user_password
 from src.forms import render_evaluation_form
 from src.ui import apply_brand_css
-from src.bonus import bonus_page
+
 
 st.set_page_config(page_title=APP_NAME, page_icon="◆", layout="wide")
 apply_brand_css()
@@ -33,11 +35,9 @@ elif page == "Histórico":
     history_page(user)
 elif page == "Planos de Ação":
     action_plans_page(user)
-elif page == "Bonificação":
-    bonus_page(user)
 elif page == "Configurações":
     st.markdown("# Configurações")
-    st.info("As principais regras configuráveis estão no arquivo `src/config.py`: pesos, bonificação, lojas, perfis e permissão das gestoras.")
+    st.info("As principais regras configuráveis estão no arquivo `src/config.py`: pesos, lojas, perfis e permissão das gestoras.")
 
     st.markdown("## Segurança e senhas")
     st.caption("Use esta área para trocar sua própria senha. Administradores também conseguem redefinir a senha das gestoras e demais usuários.")
@@ -94,5 +94,5 @@ elif page == "Configurações":
             st.warning("Backup local só se aplica ao SQLite. No Supabase, use o backup/exportação do próprio Supabase ou exporte CSV pelo dashboard.")
 
     st.markdown("## Pontos importantes")
-    st.write("Gestoras não conseguem criar avaliações. Elas acessam Dashboard, Histórico, Planos de Ação e Bonificação.")
+    st.write("Gestoras não conseguem criar avaliações. Elas acessam Dashboard, Histórico e Planos de Ação.")
     st.write("Se `DATABASE_URL` estiver configurado em secrets, o app usa Supabase/PostgreSQL. Sem `DATABASE_URL`, usa SQLite local.")
