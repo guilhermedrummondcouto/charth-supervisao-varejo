@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import date
+from html import escape
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -563,104 +564,289 @@ def _render_action_css() -> None:
     st.markdown(
         """
         <style>
-        .charth-action-card {
-            background:#fff;
-            border:1px solid rgba(109,110,113,.16);
-            border-radius:18px;
-            padding:18px 20px;
-            margin-bottom:14px;
-            box-shadow:0 12px 28px rgba(31,31,31,.035);
+        :root {
+            --charth-black:#1F1F1F;
+            --charth-gray:#6D6E71;
+            --charth-rose:#C9A0A0;
+            --charth-rose-soft:#F3E8E6;
+            --charth-paper:#FFFDFC;
+            --charth-border:rgba(109,110,113,.16);
+            --charth-shadow:0 14px 34px rgba(31,31,31,.055);
         }
-        .charth-action-top {
+        .charth-action-page,
+        .charth-action-page * {
+            font-family:SIMPLO, "Inter", "Segoe UI", sans-serif !important;
+        }
+        .charth-action-intro {
+            background:linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
+            border:1px solid rgba(201,160,160,.35);
+            border-radius:24px;
+            padding:22px 24px;
+            margin:8px 0 22px 0;
+            box-shadow:var(--charth-shadow);
+        }
+        .charth-action-intro-kicker {
+            color:var(--charth-gray);
+            font-size:12px;
+            letter-spacing:.12em;
+            text-transform:uppercase;
+            font-weight:850;
+            margin-bottom:6px;
+        }
+        .charth-action-intro-title {
+            color:var(--charth-black);
+            font-size:24px;
+            font-weight:900;
+            line-height:1.18;
+            margin-bottom:8px;
+        }
+        .charth-action-intro-text {
+            color:#3B3B3B;
+            font-size:15px;
+            line-height:1.65;
+            max-width:980px;
+        }
+        .charth-action-toolbar {
+            background:#FFFFFF;
+            border:1px solid var(--charth-border);
+            border-radius:22px;
+            padding:16px 18px;
+            margin:4px 0 18px 0;
+            box-shadow:0 10px 24px rgba(31,31,31,.035);
+        }
+        .charth-action-toolbar-title {
+            color:var(--charth-black);
+            font-size:14px;
+            font-weight:900;
+            letter-spacing:.06em;
+            text-transform:uppercase;
+            margin-bottom:2px;
+        }
+        .charth-action-toolbar-subtitle {
+            color:var(--charth-gray);
+            font-size:13px;
+            line-height:1.5;
+        }
+        div[data-testid="stExpander"] {
+            border:1px solid rgba(109,110,113,.18) !important;
+            border-radius:22px !important;
+            background:#FFFFFF !important;
+            box-shadow:0 12px 28px rgba(31,31,31,.045) !important;
+            margin-bottom:14px !important;
+            overflow:hidden !important;
+        }
+        div[data-testid="stExpander"] details summary {
+            background:linear-gradient(135deg, #FFFDFC 0%, #F7F4F2 100%) !important;
+            padding:16px 18px !important;
+            color:var(--charth-black) !important;
+            font-weight:900 !important;
+            letter-spacing:.01em !important;
+            border-bottom:1px solid rgba(109,110,113,.10) !important;
+        }
+        div[data-testid="stExpander"] details summary p {
+            color:var(--charth-black) !important;
+            font-weight:900 !important;
+            font-family:SIMPLO, "Inter", "Segoe UI", sans-serif !important;
+        }
+        .charth-plan-head {
             display:flex;
             justify-content:space-between;
-            gap:16px;
+            gap:18px;
             align-items:flex-start;
-            margin-bottom:12px;
+            margin:4px 0 16px 0;
         }
-        .charth-action-title {
-            font-family:SIMPLO, "Inter", "Segoe UI", sans-serif;
-            font-size:16px;
+        .charth-plan-kicker {
+            color:var(--charth-gray);
+            font-size:11px;
+            letter-spacing:.12em;
+            text-transform:uppercase;
             font-weight:850;
-            color:#1f1f1f;
             margin-bottom:4px;
         }
-        .charth-action-subtitle {
-            font-size:12px;
-            color:#6D6E71;
-            letter-spacing:.08em;
-            text-transform:uppercase;
-            font-weight:800;
+        .charth-plan-title {
+            color:var(--charth-black);
+            font-size:20px;
+            line-height:1.25;
+            font-weight:900;
+            margin-bottom:6px;
         }
-        .charth-action-question {
-            font-size:15px;
+        .charth-plan-subtitle {
+            color:#4A4A4A;
+            font-size:14px;
             line-height:1.55;
-            color:#2d2d2d;
-            margin:10px 0 12px 0;
         }
-        .charth-action-meta {
-            display:grid;
-            grid-template-columns:repeat(4, minmax(0,1fr));
-            gap:10px;
-            margin-top:12px;
+        .charth-plan-badges {
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            justify-content:flex-end;
+            min-width:210px;
         }
-        .charth-action-meta div {
+        .charth-badge {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:999px;
+            padding:7px 12px;
+            color:#fff;
+            font-size:12px;
+            font-weight:850;
+            letter-spacing:.04em;
+            white-space:nowrap;
+        }
+        .charth-badge-soft {
+            color:var(--charth-black);
             background:#F7F4F2;
-            border-radius:12px;
-            padding:10px 12px;
-            font-size:13px;
-            color:#1f1f1f;
+            border:1px solid rgba(109,110,113,.14);
         }
-        .charth-action-meta span {
-            display:block;
-            color:#6D6E71;
-            font-size:11px;
-            letter-spacing:.08em;
-            text-transform:uppercase;
-            font-weight:800;
-            margin-bottom:3px;
+        .charth-plan-grid {
+            display:grid;
+            grid-template-columns:repeat(3, minmax(0,1fr));
+            gap:12px;
+            margin:14px 0 18px 0;
         }
-        .charth-rule-card {
-            background:linear-gradient(135deg, #F7F4F2 0%, #FFF 100%);
-            border:1px solid rgba(201,160,160,.35);
+        .charth-plan-info {
+            background:#FFFDFC;
+            border:1px solid rgba(109,110,113,.14);
             border-radius:18px;
-            padding:16px 18px;
-            margin-bottom:16px;
+            padding:15px 16px;
+            min-height:136px;
+        }
+        .charth-plan-info.rose {
+            background:linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%);
+            border-color:rgba(201,160,160,.28);
+        }
+        .charth-plan-info-title {
+            color:var(--charth-black);
+            font-size:13px;
+            font-weight:900;
+            letter-spacing:.07em;
+            text-transform:uppercase;
+            margin-bottom:8px;
+        }
+        .charth-plan-info-body {
+            color:#343434;
+            font-size:14px;
+            line-height:1.6;
+        }
+        .charth-plan-meta {
+            display:grid;
+            grid-template-columns:repeat(5, minmax(0,1fr));
+            gap:10px;
+            margin:12px 0 18px 0;
+        }
+        .charth-plan-meta-item {
+            background:#F7F4F2;
+            border:1px solid rgba(109,110,113,.10);
+            border-radius:16px;
+            padding:12px 13px;
+        }
+        .charth-plan-meta-label {
+            display:block;
+            color:var(--charth-gray);
+            font-size:10px;
+            letter-spacing:.11em;
+            text-transform:uppercase;
+            font-weight:850;
+            margin-bottom:5px;
+        }
+        .charth-plan-meta-value {
+            color:var(--charth-black);
+            font-size:14px;
+            line-height:1.3;
+            font-weight:780;
+        }
+        .charth-update-box {
+            background:#FFFFFF;
+            border:1px solid rgba(31,31,31,.10);
+            border-radius:20px;
+            padding:18px 18px 16px 18px;
+            margin-top:14px;
+        }
+        .charth-update-title {
+            color:var(--charth-black);
+            font-size:15px;
+            font-weight:900;
+            letter-spacing:.06em;
+            text-transform:uppercase;
+            margin-bottom:2px;
+        }
+        .charth-update-subtitle {
+            color:var(--charth-gray);
+            font-size:13px;
+            margin-bottom:12px;
+        }
+        .charth-plan-footer-note {
+            color:var(--charth-gray);
+            font-size:12px;
+            line-height:1.55;
+            margin-top:8px;
+        }
+        @media (max-width: 900px) {
+            .charth-plan-head { flex-direction:column; }
+            .charth-plan-badges { justify-content:flex-start; }
+            .charth-plan-grid { grid-template-columns:1fr; }
+            .charth-plan-meta { grid-template-columns:1fr 1fr; }
         }
         </style>
+        <div class="charth-action-page"></div>
         """,
         unsafe_allow_html=True,
     )
 
 
-def _render_action_card(row: pd.Series) -> None:
-    score = float(row.get("score") or 0)
-    deadline = row.get("deadline")
-    overdue = pd.notna(deadline) and deadline.date() < date.today() and row.get("status") != "Concluído"
-    overdue_text = " · Vencido" if overdue else ""
-    overdue_color = "#9E3F45" if overdue else "#6D6E71"
-    st.markdown(
-        f"""
-        <div class="charth-action-card">
-            <div class="charth-action-top">
-                <div>
-                    <div class="charth-action-subtitle">Plano #{int(row['id'])} · {row.get('store','')}</div>
-                    <div class="charth-action-title">{row.get('section','')}</div>
-                </div>
-                <div>{_priority_badge(row.get('priority',''))} &nbsp; {_status_badge(row.get('status',''))}</div>
-            </div>
-            <div class="charth-action-question"><strong>Ponto a corrigir:</strong> {row.get('question_label','')}</div>
-            <div>{_score_badge(score)}</div>
-            <div class="charth-action-meta">
-                <div><span>Responsável</span>{row.get('responsible') or 'Não definido'}</div>
-                <div><span>Prazo</span><span style="display:inline;color:{overdue_color};font-size:13px;text-transform:none;letter-spacing:0;font-weight:700;">{_format_date_br(deadline)}{overdue_text}</span></div>
-                <div><span>Prioridade</span>{row.get('priority','')}</div>
-                <div><span>Status</span>{row.get('status','')}</div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+def _badge_html(label: str, color: str, soft: bool = False) -> str:
+    safe = escape(str(label or "-"))
+    if soft:
+        return f'<span class="charth-badge charth-badge-soft">{safe}</span>'
+    return f'<span class="charth-badge" style="background:{color};">{safe}</span>'
+
+
+def _priority_badge(priority: str) -> str:
+    mapping = {
+        "Alta": "#7F3438",
+        "Média": "#A66A3F",
+        "Baixa": "#B8B8B8",
+        "Monitoramento": "#6D6E71",
+    }
+    return _badge_html(priority, mapping.get(str(priority), "#6D6E71"))
+
+
+def _status_badge(status: str) -> str:
+    color = {
+        "Aberto": "#7F3438",
+        "Em andamento": "#A66A3F",
+        "Reprogramado": "#C8A24A",
+        "Concluído": "#6D6E71",
+        "Cancelado": "#9FA0A3",
+    }.get(str(status), "#6D6E71")
+    return _badge_html(status, color)
+
+
+def _score_badge(score: float) -> str:
+    if score >= 9:
+        label, bg = "Excelência", "#C9A0A0"
+    elif score >= 8:
+        label, bg = "Forte", "#C8A24A"
+    elif score >= 7:
+        label, bg = "Regular", "#A66A3F"
+    elif score >= 5:
+        label, bg = "Atenção", "#B8875D"
+    else:
+        label, bg = "Crítico", "#7F3438"
+    return _badge_html(f"{label} · {score:.2f}", bg)
+
+
+def _format_date_br(value) -> str:
+    if pd.isna(value):
+        return "Sem prazo"
+    try:
+        return value.date().strftime("%d/%m/%Y")
+    except AttributeError:
+        try:
+            return pd.to_datetime(value).date().strftime("%d/%m/%Y")
+        except Exception:
+            return str(value)
 
 
 def _action_suggestion(row: pd.Series) -> tuple[str, str]:
@@ -671,15 +857,15 @@ def _action_suggestion(row: pd.Series) -> tuple[str, str]:
 
     suggestions = {
         "acuracidade_estoque_5_itens": (
-            "Recontar os 5 itens conferidos, registrar divergências entre físico e sistema, identificar a origem da diferença e solicitar ajuste/correção no processo.",
-            "Informar referência/código dos 5 itens, quantidade física, quantidade no sistema, diferença encontrada e ação tomada. Na próxima visita, repetir nova amostra para validar a correção.",
+            "Recontar os 5 itens conferidos, registrar divergências entre físico e sistema, identificar a origem da diferença e solicitar ajuste ou correção do processo.",
+            "Registrar referência/código dos 5 itens, quantidade física, quantidade no sistema, diferença encontrada e ação tomada. Na próxima visita, repetir nova amostra para validar a correção.",
         ),
         "ruptura_best_sellers": (
-            "Levantar os best sellers ausentes, consultar disponibilidade em outras lojas/estoque central e solicitar reposição ou transferência.",
+            "Levantar os best sellers ausentes, consultar disponibilidade em outras lojas ou estoque central e solicitar reposição ou transferência.",
             "Registrar produto, cor/tamanho, quantidade faltante, loja origem/destino e data da solicitação de reposição ou transferência.",
         ),
         "transferencias_solicitadas_em_dia": (
-            "Revisar todas as transferências pendentes, separar o que depende da loja e o que depende de outra unidade, e atualizar a responsável pelo envio/recebimento.",
+            "Revisar todas as transferências pendentes, separar o que depende da loja e o que depende de outra unidade, e atualizar a responsável pelo envio ou recebimento.",
             "Registrar transferências em atraso, responsável, motivo do atraso e nova data combinada.",
         ),
         "reposicao_agil_salao": (
@@ -746,7 +932,6 @@ def _action_suggestion(row: pd.Series) -> tuple[str, str]:
 
     if key in suggestions:
         return suggestions[key]
-
     if "Estoque" in section:
         return (
             "Revisar o processo operacional relacionado ao ponto apontado, identificar causa da falha e definir responsável pela correção.",
@@ -767,7 +952,6 @@ def _action_suggestion(row: pd.Series) -> tuple[str, str]:
             "Formalizar rotina de gestão para o ponto indicado, com combinado claro, responsável e acompanhamento na próxima visita.",
             "Registrar combinado, responsável e data da próxima checagem.",
         )
-
     return (
         f"Tratar o ponto indicado: {label}. Definir causa, responsável, prazo e evidência de correção.",
         "Registrar o que foi feito, quem ficou responsável e como será validado na próxima visita.",
@@ -780,6 +964,18 @@ def _plan_is_overdue(row: pd.Series) -> bool:
     return pd.notna(deadline) and pd.to_datetime(deadline).date() < date.today() and status not in {"Concluído", "Cancelado"}
 
 
+def _meta_item(label: str, value: str, color: str | None = None) -> str:
+    safe_label = escape(str(label))
+    safe_value = escape(str(value))
+    style = f' style="color:{color};"' if color else ""
+    return f"""
+        <div class="charth-plan-meta-item">
+            <span class="charth-plan-meta-label">{safe_label}</span>
+            <div class="charth-plan-meta-value"{style}>{safe_value}</div>
+        </div>
+    """
+
+
 def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
     from .db import update_action_plan
 
@@ -789,42 +985,70 @@ def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
     action_text, evidence_text = _action_suggestion(row)
     can_update = user.get("role") != ROLE_GESTORA
 
-    title = f"Plano #{plan_id} · {row.get('store','')} · {row.get('section','')}"
+    store = str(row.get("store") or "-")
+    section = str(row.get("section") or "-")
+    status = str(row.get("status") or "Aberto")
+    priority = str(row.get("priority") or "-")
+    deadline_text = _format_date_br(row.get("deadline"))
+    responsible = str(row.get("responsible") or "Não definido")
+    title = f"Plano #{plan_id} · {store} · {section}"
     if overdue:
-        title += " · VENCIDO"
+        title += " · Vencido"
 
-    with st.expander(title, expanded=overdue or str(row.get("priority")) == "Alta"):
-        c_top1, c_top2, c_top3 = st.columns([1.2, 1, 1])
-        with c_top1:
-            st.markdown("**Ponto de atenção**")
-            st.write(row.get("question_label", ""))
-        with c_top2:
-            st.markdown("**Nota / resposta**")
-            st.markdown(_score_badge(score), unsafe_allow_html=True)
-        with c_top3:
-            st.markdown("**Situação atual**")
-            st.markdown(f"{_priority_badge(row.get('priority',''))} &nbsp; {_status_badge(row.get('status',''))}", unsafe_allow_html=True)
+    with st.expander(title, expanded=overdue or priority == "Alta"):
+        deadline_color = "#7F3438" if overdue else "#1F1F1F"
+        overdue_badge = _badge_html("Vencido", "#7F3438") if overdue else _badge_html("No prazo", "#F7F4F2", soft=True)
+        st.markdown(
+            f"""
+            <div class="charth-plan-head">
+                <div>
+                    <div class="charth-plan-kicker">{escape(store)} · {escape(section)}</div>
+                    <div class="charth-plan-title">{escape(str(row.get('question_label') or 'Ponto de atenção'))}</div>
+                    <div class="charth-plan-subtitle">Plano gerado automaticamente a partir de uma resposta abaixo do padrão. A supervisora pode acompanhar, ajustar prazo e registrar evolução.</div>
+                </div>
+                <div class="charth-plan-badges">
+                    {_priority_badge(priority)}
+                    {_status_badge(status)}
+                    {_score_badge(score)}
+                    {overdue_badge}
+                </div>
+            </div>
+            <div class="charth-plan-meta">
+                {_meta_item('Loja', store)}
+                {_meta_item('Seção', section)}
+                {_meta_item('Responsável', responsible)}
+                {_meta_item('Prazo', deadline_text, deadline_color)}
+                {_meta_item('Status', status)}
+            </div>
+            <div class="charth-plan-grid">
+                <div class="charth-plan-info rose">
+                    <div class="charth-plan-info-title">Ação sugerida</div>
+                    <div class="charth-plan-info-body">{escape(action_text)}</div>
+                </div>
+                <div class="charth-plan-info">
+                    <div class="charth-plan-info-title">Evidência esperada</div>
+                    <div class="charth-plan-info-body">{escape(evidence_text)}</div>
+                </div>
+                <div class="charth-plan-info">
+                    <div class="charth-plan-info-title">Último acompanhamento</div>
+                    <div class="charth-plan-info-body">{escape(str(row.get('notes') or 'Sem comentário registrado.'))}</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-        st.markdown("#### Ação sugerida")
-        st.info(action_text)
-        st.markdown("#### Evidência esperada")
-        st.caption(evidence_text)
-
-        c_meta1, c_meta2, c_meta3, c_meta4 = st.columns(4)
-        with c_meta1:
-            st.metric("Loja", str(row.get("store") or "-"))
-        with c_meta2:
-            st.metric("Prioridade", str(row.get("priority") or "-"))
-        with c_meta3:
-            st.metric("Prazo", _format_date_br(row.get("deadline")))
-        with c_meta4:
-            st.metric("Status", str(row.get("status") or "-"))
-
-        current_notes = str(row.get("notes") or "")
         if can_update:
-            st.markdown("#### Atualizar este plano")
+            st.markdown(
+                """
+                <div class="charth-update-box">
+                    <div class="charth-update-title">Atualização do plano</div>
+                    <div class="charth-update-subtitle">Use esta área para registrar acompanhamento real, mudança de status e novo prazo.</div>
+                """,
+                unsafe_allow_html=True,
+            )
             status_options = ["Aberto", "Em andamento", "Reprogramado", "Concluído", "Cancelado"]
-            current_status = str(row.get("status") or "Aberto")
+            current_status = status
             if current_status not in status_options:
                 status_options.insert(0, current_status)
 
@@ -852,8 +1076,8 @@ def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
                 )
 
             suggested_note = (
-                current_notes
-                if current_notes.strip()
+                str(row.get("notes") or "")
+                if str(row.get("notes") or "").strip()
                 else f"Ação sugerida: {action_text}\nEvidência esperada: {evidence_text}\nAcompanhamento: "
             )
             new_notes = st.text_area(
@@ -861,12 +1085,12 @@ def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
                 value=suggested_note,
                 height=140,
                 key=f"notes_plan_{plan_id}",
-                help="Use este campo para registrar o que foi combinado, evidências, justificativa de prazo e evolução do plano.",
+                help="Registre o que foi combinado, evidências, justificativa de prazo e evolução do plano.",
             )
 
             requires_comment = new_status == "Reprogramado" or new_deadline != default_deadline
             if requires_comment:
-                st.caption("Como houve reprogramação de prazo/status, registre a justificativa no comentário.")
+                st.markdown('<div class="charth-plan-footer-note">Prazo ou status reprogramado: registre uma justificativa clara no comentário.</div>', unsafe_allow_html=True)
 
             if st.button("Salvar alteração deste plano", use_container_width=True, key=f"save_plan_{plan_id}"):
                 if requires_comment and not new_notes.strip():
@@ -875,10 +1099,9 @@ def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
                     update_action_plan(plan_id, new_status, new_responsible, new_deadline.isoformat(), new_notes)
                     st.success(f"Plano #{plan_id} atualizado com sucesso.")
                     st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
         else:
-            st.markdown("#### Comentário / acompanhamento")
-            st.write(current_notes or "Sem comentário registrado.")
-            st.caption("Gestoras visualizam os planos. Alteração de status, prazo e conclusão fica com a supervisora/admin.")
+            st.markdown('<div class="charth-plan-footer-note">Gestoras visualizam os planos. Alteração de status, prazo e conclusão fica com a supervisora/admin.</div>', unsafe_allow_html=True)
 
 
 def action_plans_page(user: dict) -> None:
@@ -888,11 +1111,12 @@ def action_plans_page(user: dict) -> None:
 
     st.markdown(
         """
-        <div class="charth-rule-card">
-            <div class="charth-kicker">Como usar</div>
-            <div class="charth-history-card-body">
-                Clique em cada plano para abrir os detalhes, ver a ação sugerida, registrar acompanhamento, alterar status e redefinir prazo.
-                Supervisora e Admin podem editar. Gestoras acompanham os planos da loja.
+        <div class="charth-action-intro">
+            <div class="charth-action-intro-kicker">Gestão de acompanhamento</div>
+            <div class="charth-action-intro-title">Planos de ação com prioridade, prazo e evidência</div>
+            <div class="charth-action-intro-text">
+                Cada item abaixo nasce de uma resposta abaixo do padrão na avaliação. Abra um plano para ver o ponto de atenção,
+                a ação sugerida, a evidência esperada e registrar a evolução. Supervisora e Admin podem alterar status, prazo e responsável.
             </div>
         </div>
         """,
@@ -921,10 +1145,8 @@ def action_plans_page(user: dict) -> None:
     if plans.empty:
         st.info("Nenhum plano de ação gerado até o momento.")
         return
-
     if user.get("role") == ROLE_GESTORA and not GESTORA_CAN_VIEW_ALL_STORES:
         plans = plans[plans["store"] == user.get("store")]
-
     if plans.empty:
         st.info("Não há planos de ação para o seu perfil de acesso.")
         return
@@ -936,19 +1158,27 @@ def action_plans_page(user: dict) -> None:
     existing_statuses = [s for s in plans["status"].dropna().unique().tolist() if s not in status_options_all]
     status_options = status_options_all + existing_statuses
 
-    with st.expander("Filtros", expanded=True):
-        c1, c2, c3, c4 = st.columns(4)
-        with c1:
-            available_stores = sorted(plans["store"].dropna().unique().tolist())
-            stores = st.multiselect("Loja", available_stores, default=available_stores)
-        with c2:
-            default_status = [s for s in ["Aberto", "Em andamento", "Reprogramado"] if s in status_options]
-            statuses = st.multiselect("Status", status_options, default=default_status or status_options)
-        with c3:
-            priority_options = ["Alta", "Média", "Baixa", "Monitoramento"]
-            priorities = st.multiselect("Prioridade", priority_options, default=priority_options)
-        with c4:
-            only_overdue = st.checkbox("Mostrar só vencidos", value=False)
+    st.markdown(
+        """
+        <div class="charth-action-toolbar">
+            <div class="charth-action-toolbar-title">Filtros</div>
+            <div class="charth-action-toolbar-subtitle">Use os filtros para focar nas lojas, prioridades e planos vencidos.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        available_stores = sorted(plans["store"].dropna().unique().tolist())
+        stores = st.multiselect("Loja", available_stores, default=available_stores)
+    with c2:
+        default_status = [s for s in ["Aberto", "Em andamento", "Reprogramado"] if s in status_options]
+        statuses = st.multiselect("Status", status_options, default=default_status or status_options)
+    with c3:
+        priority_options = ["Alta", "Média", "Baixa", "Monitoramento"]
+        priorities = st.multiselect("Prioridade", priority_options, default=priority_options)
+    with c4:
+        only_overdue = st.checkbox("Mostrar só vencidos", value=False)
 
     filtered = plans[
         plans["store"].isin(stores)
@@ -957,7 +1187,6 @@ def action_plans_page(user: dict) -> None:
     ].copy()
     if only_overdue:
         filtered = filtered[filtered["_overdue"]]
-
     if filtered.empty:
         st.warning("Nenhum plano encontrado para os filtros selecionados.")
         return
