@@ -216,13 +216,28 @@ def _create_tables_postgres(cur) -> None:
 
 
 def _ensure_action_plan_columns(cur) -> None:
-    """Adiciona campos novos em bancos existentes sem apagar dados antigos."""
-    for column in ["updated_at TEXT", "updated_by TEXT", "followup_log TEXT"]:
-        try:
-            cur.execute(f"ALTER TABLE action_plans ADD COLUMN {column}")
-        except Exception:
-            # A coluna já existe ou o banco não permite repetir ALTER TABLE.
-            pass
+    """Adiciona campos novos em bancos existentes sem apagar dados antigos.
+
+    Em PostgreSQL, uma tentativa de adicionar uma coluna já existente aborta
+    a transação inteira. Por isso usamos IF NOT EXISTS no Supabase/PostgreSQL
+    e uma verificação explícita no SQLite.
+    """
+    columns = {
+        "updated_at": "TEXT",
+        "updated_by": "TEXT",
+        "followup_log": "TEXT",
+    }
+
+    if is_postgres():
+        for name, col_type in columns.items():
+            cur.execute(f"ALTER TABLE action_plans ADD COLUMN IF NOT EXISTS {name} {col_type}")
+        return
+
+    cur.execute("PRAGMA table_info(action_plans)")
+    existing = {row[1] for row in cur.fetchall()}
+    for name, col_type in columns.items():
+        if name not in existing:
+            cur.execute(f"ALTER TABLE action_plans ADD COLUMN {name} {col_type}")
 
 
 def init_db() -> None:
