@@ -438,8 +438,7 @@ def history_page(user: dict) -> None:
     st.markdown("### Resumo das avaliações")
     summary = df[["id", "evaluation_date", "store", "supervisor", "manager", "weighted_score", "overall_status", "bonus_level", "manager_bonus"]].rename(
         columns={
-            "id": "ID",
-            "evaluation_date": "Data",
+                "evaluation_date": "Data",
             "store": "Loja",
             "supervisor": "Supervisora",
             "manager": "Gerente",
@@ -990,17 +989,13 @@ def _plan_detail_card(title: str, body: str, accent: bool = False) -> None:
 
 
 def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
-    """Renderiza um plano sem HTML complexo.
-
-    Esta versão usa componentes nativos do Streamlit para evitar vazamento de
-    tags HTML na tela e manter a página com aparência mais limpa e consistente.
-    """
+    """Renderiza um plano de ação limpo, sem expor número do plano na tela."""
     from .db import update_action_plan
 
     plan_id = int(row["id"])
     score = float(row.get("score") or 0)
     overdue = _plan_is_overdue(row)
-    action_text, evidence_text = _action_suggestion(row)
+    action_text, _evidence_text = _action_suggestion(row)
     can_update = user.get("role") != ROLE_GESTORA
 
     store = str(row.get("store") or "-")
@@ -1010,71 +1005,59 @@ def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
     deadline_text = _format_date_br(row.get("deadline"))
     responsible = str(row.get("responsible") or "Não definido")
     question = str(row.get("question_label") or "Ponto de atenção")
+    situation = "Vencido" if overdue else "No prazo"
 
-    title = f"Plano #{plan_id} · {store} · {section}"
+    expander_title = f"{store} · {section}"
     if overdue:
-        title += " · Vencido"
+        expander_title += " · Vencido"
 
-    with st.expander(title, expanded=overdue or priority == "Alta"):
+    with st.expander(expander_title, expanded=overdue or priority == "Alta"):
         st.markdown(f"### {question}")
         st.caption(
             "Plano gerado automaticamente a partir de uma resposta abaixo do padrão. "
-            "A supervisora pode acompanhar, ajustar prazo e registrar evolução."
+            "A supervisora pode definir o plano real, acompanhar a evolução e ajustar o prazo."
         )
 
-        m1, m2, m3, m4, m5 = st.columns(5)
-        with m1:
-            st.caption("Loja")
-            st.markdown(f"**{store}**")
-        with m2:
-            st.caption("Seção")
-            st.markdown(f"**{section}**")
-        with m3:
-            st.caption("Responsável")
-            st.markdown(f"**{responsible}**")
-        with m4:
-            st.caption("Prazo")
-            if overdue:
-                st.markdown(f"**:red[{deadline_text}]**")
-            else:
-                st.markdown(f"**{deadline_text}**")
-        with m5:
-            st.caption("Status")
-            st.markdown(f"**{status}**")
+        with st.container(border=True):
+            st.markdown("##### Resumo do ponto de atenção")
+            r1, r2, r3, r4 = st.columns([1.1, 1.1, 1.1, 0.9])
+            with r1:
+                st.caption("Loja")
+                st.markdown(f"**{store}**")
+            with r2:
+                st.caption("Seção")
+                st.markdown(f"**{section}**")
+            with r3:
+                st.caption("Responsável")
+                st.markdown(f"**{responsible}**")
+            with r4:
+                st.caption("Prazo")
+                st.markdown(f"**:red[{deadline_text}]**" if overdue else f"**{deadline_text}**")
 
-        b1, b2, b3, b4 = st.columns([1, 1, 1, 1])
-        with b1:
-            st.caption("Prioridade")
-            st.markdown(f"**{priority}**")
-        with b2:
-            st.caption("Nota")
-            st.markdown(f"**{score:.2f}**")
-        with b3:
-            st.caption("Situação")
-            st.markdown("**Vencido**" if overdue else "**No prazo**")
-        with b4:
-            st.caption("Plano")
-            st.markdown(f"**#{plan_id}**")
+            st.markdown("")
+            r5, r6, r7, r8 = st.columns([1.1, 1.1, 1.1, 0.9])
+            with r5:
+                st.caption("Status")
+                st.markdown(f"**{status}**")
+            with r6:
+                st.caption("Prioridade")
+                st.markdown(f"**{priority}**")
+            with r7:
+                st.caption("Nota")
+                st.markdown(f"**{score:.2f}**")
+            with r8:
+                st.caption("Situação")
+                st.markdown(f"**{situation}**")
 
-        st.divider()
-
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            with st.container(border=True):
-                st.markdown("#### Ação sugerida")
-                st.write(action_text)
-        with c2:
-            with st.container(border=True):
-                st.markdown("#### Evidência esperada")
-                st.write(evidence_text)
-        with c3:
-            with st.container(border=True):
-                st.markdown("#### Último acompanhamento")
-                st.write(str(row.get("notes") or "Sem comentário registrado."))
+        st.markdown("")
+        with st.container(border=True):
+            st.markdown("##### Ação sugerida")
+            st.caption("Sugestão inicial do sistema. A supervisora pode adaptar o plano real na área de atualização abaixo.")
+            st.write(action_text)
 
         if can_update:
             st.markdown("#### Atualização do plano")
-            st.caption("Registre acompanhamento real, mudança de status e novo prazo.")
+            st.caption("Defina o plano combinado com a gerente, altere status, responsável e prazo quando necessário.")
 
             status_options = ["Aberto", "Em andamento", "Reprogramado", "Concluído", "Cancelado"]
             current_status = status
@@ -1105,29 +1088,33 @@ def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
                 )
 
             current_note = str(row.get("notes") or "").strip()
-            suggested_note = current_note if current_note else (
-                f"Ação sugerida: {action_text}\n"
-                f"Evidência esperada: {evidence_text}\n"
-                "Acompanhamento: "
-            )
+            generic_note = "Plano de ação gerado automaticamente por nota abaixo do padrão."
+            if current_note == generic_note:
+                current_note = ""
+
             new_notes = st.text_area(
-                "Comentário / acompanhamento",
-                value=suggested_note,
-                height=130,
+                "Plano definido pela supervisora / acompanhamento",
+                value=current_note,
+                height=150,
                 key=f"notes_plan_{plan_id}",
-                help="Registre o que foi combinado, evidências, justificativa de prazo e evolução do plano.",
+                placeholder=(
+                    "Descreva o plano combinado com a gerente: o que será feito, quem fará, "
+                    "até quando e qual evidência deve ser apresentada."
+                ),
+                help="Use este campo para registrar o plano real, combinados, justificativa de prazo e evolução.",
             )
 
             requires_comment = new_status == "Reprogramado" or new_deadline != default_deadline
-            if requires_comment:
-                st.warning("Prazo ou status reprogramado: registre uma justificativa clara no comentário.")
+            if requires_comment and not new_notes.strip():
+                st.warning("Prazo ou status reprogramado: registre o motivo no plano/acompanhamento.")
 
-            if st.button("Salvar alteração deste plano", use_container_width=True, key=f"save_plan_{plan_id}"):
+            if st.button("Salvar atualização", use_container_width=True, key=f"save_plan_{plan_id}"):
                 if requires_comment and not new_notes.strip():
-                    st.warning("Informe uma justificativa no comentário para reprogramar o plano.")
+                    st.warning("Informe uma justificativa para reprogramar o plano.")
                 else:
-                    update_action_plan(plan_id, new_status, new_responsible, new_deadline.isoformat(), new_notes)
-                    st.success(f"Plano #{plan_id} atualizado com sucesso.")
+                    saved_notes = new_notes.strip() or current_note
+                    update_action_plan(plan_id, new_status, new_responsible, new_deadline.isoformat(), saved_notes)
+                    st.success("Plano atualizado com sucesso.")
                     st.rerun()
         else:
             st.caption("Gestoras visualizam os planos. Alteração de status, prazo e conclusão fica com a supervisora/admin.")
@@ -1144,7 +1131,7 @@ def action_plans_page(user: dict) -> None:
             <div class="charth-action-intro-title">Planos de ação com prioridade, prazo e evidência</div>
             <div class="charth-action-intro-text">
                 Cada item abaixo nasce de uma resposta abaixo do padrão na avaliação. Abra um plano para ver o ponto de atenção,
-                a ação sugerida, a evidência esperada e registrar a evolução. Supervisora e Admin podem alterar status, prazo e responsável.
+                a ação sugerida e registrar o plano definido pela supervisora. Supervisora e Admin podem alterar status, prazo e responsável.
             </div>
         </div>
         """,
@@ -1265,10 +1252,9 @@ def action_plans_page(user: dict) -> None:
         render_subset(filtered, "Nenhum plano neste filtro.")
 
     st.markdown("### Tabela para exportação")
-    table = filtered[["id", "store", "section", "question_label", "score", "priority", "responsible", "deadline", "status", "notes"]].copy()
+    table = filtered[["store", "section", "question_label", "score", "priority", "responsible", "deadline", "status", "notes"]].copy()
     table["deadline"] = table["deadline"].apply(_format_date_br)
     table = table.rename(columns={
-        "id": "ID",
         "store": "Loja",
         "section": "Seção",
         "question_label": "Ponto de atenção",
