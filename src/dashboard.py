@@ -976,7 +976,25 @@ def _meta_item(label: str, value: str, color: str | None = None) -> str:
     """
 
 
+def _plan_detail_card(title: str, body: str, accent: bool = False) -> None:
+    """Card pequeno, sem HTML aninhado complexo, para evitar vazamento de tags no Streamlit."""
+    bg = "linear-gradient(135deg, #FFFDFC 0%, #F3E8E6 100%)" if accent else "#FFFDFC"
+    border = "rgba(201,160,160,.30)" if accent else "rgba(109,110,113,.14)"
+    st.markdown(
+        f"""<div class="charth-plan-info" style="background:{bg};border-color:{border};">
+<div class="charth-plan-info-title">{escape(title)}</div>
+<div class="charth-plan-info-body">{escape(str(body or 'Sem informação registrada.')).replace(chr(10), '<br>')}</div>
+</div>""",
+        unsafe_allow_html=True,
+    )
+
+
 def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
+    """Renderiza um plano sem HTML complexo.
+
+    Esta versão usa componentes nativos do Streamlit para evitar vazamento de
+    tags HTML na tela e manter a página com aparência mais limpa e consistente.
+    """
     from .db import update_action_plan
 
     plan_id = int(row["id"])
@@ -991,82 +1009,93 @@ def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
     priority = str(row.get("priority") or "-")
     deadline_text = _format_date_br(row.get("deadline"))
     responsible = str(row.get("responsible") or "Não definido")
+    question = str(row.get("question_label") or "Ponto de atenção")
+
     title = f"Plano #{plan_id} · {store} · {section}"
     if overdue:
         title += " · Vencido"
 
     with st.expander(title, expanded=overdue or priority == "Alta"):
-        deadline_color = "#7F3438" if overdue else "#1F1F1F"
-        overdue_badge = _badge_html("Vencido", "#7F3438") if overdue else _badge_html("No prazo", "#F7F4F2", soft=True)
-        st.markdown(
-            f"""
-            <div class="charth-plan-head">
-                <div>
-                    <div class="charth-plan-kicker">{escape(store)} · {escape(section)}</div>
-                    <div class="charth-plan-title">{escape(str(row.get('question_label') or 'Ponto de atenção'))}</div>
-                    <div class="charth-plan-subtitle">Plano gerado automaticamente a partir de uma resposta abaixo do padrão. A supervisora pode acompanhar, ajustar prazo e registrar evolução.</div>
-                </div>
-                <div class="charth-plan-badges">
-                    {_priority_badge(priority)}
-                    {_status_badge(status)}
-                    {_score_badge(score)}
-                    {overdue_badge}
-                </div>
-            </div>
-            <div class="charth-plan-meta">
-                {_meta_item('Loja', store)}
-                {_meta_item('Seção', section)}
-                {_meta_item('Responsável', responsible)}
-                {_meta_item('Prazo', deadline_text, deadline_color)}
-                {_meta_item('Status', status)}
-            </div>
-            <div class="charth-plan-grid">
-                <div class="charth-plan-info rose">
-                    <div class="charth-plan-info-title">Ação sugerida</div>
-                    <div class="charth-plan-info-body">{escape(action_text)}</div>
-                </div>
-                <div class="charth-plan-info">
-                    <div class="charth-plan-info-title">Evidência esperada</div>
-                    <div class="charth-plan-info-body">{escape(evidence_text)}</div>
-                </div>
-                <div class="charth-plan-info">
-                    <div class="charth-plan-info-title">Último acompanhamento</div>
-                    <div class="charth-plan-info-body">{escape(str(row.get('notes') or 'Sem comentário registrado.'))}</div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        st.markdown(f"### {question}")
+        st.caption(
+            "Plano gerado automaticamente a partir de uma resposta abaixo do padrão. "
+            "A supervisora pode acompanhar, ajustar prazo e registrar evolução."
         )
 
+        m1, m2, m3, m4, m5 = st.columns(5)
+        with m1:
+            st.caption("Loja")
+            st.markdown(f"**{store}**")
+        with m2:
+            st.caption("Seção")
+            st.markdown(f"**{section}**")
+        with m3:
+            st.caption("Responsável")
+            st.markdown(f"**{responsible}**")
+        with m4:
+            st.caption("Prazo")
+            if overdue:
+                st.markdown(f"**:red[{deadline_text}]**")
+            else:
+                st.markdown(f"**{deadline_text}**")
+        with m5:
+            st.caption("Status")
+            st.markdown(f"**{status}**")
+
+        b1, b2, b3, b4 = st.columns([1, 1, 1, 1])
+        with b1:
+            st.caption("Prioridade")
+            st.markdown(f"**{priority}**")
+        with b2:
+            st.caption("Nota")
+            st.markdown(f"**{score:.2f}**")
+        with b3:
+            st.caption("Situação")
+            st.markdown("**Vencido**" if overdue else "**No prazo**")
+        with b4:
+            st.caption("Plano")
+            st.markdown(f"**#{plan_id}**")
+
+        st.divider()
+
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            with st.container(border=True):
+                st.markdown("#### Ação sugerida")
+                st.write(action_text)
+        with c2:
+            with st.container(border=True):
+                st.markdown("#### Evidência esperada")
+                st.write(evidence_text)
+        with c3:
+            with st.container(border=True):
+                st.markdown("#### Último acompanhamento")
+                st.write(str(row.get("notes") or "Sem comentário registrado."))
+
         if can_update:
-            st.markdown(
-                """
-                <div class="charth-update-box">
-                    <div class="charth-update-title">Atualização do plano</div>
-                    <div class="charth-update-subtitle">Use esta área para registrar acompanhamento real, mudança de status e novo prazo.</div>
-                """,
-                unsafe_allow_html=True,
-            )
+            st.markdown("#### Atualização do plano")
+            st.caption("Registre acompanhamento real, mudança de status e novo prazo.")
+
             status_options = ["Aberto", "Em andamento", "Reprogramado", "Concluído", "Cancelado"]
             current_status = status
             if current_status not in status_options:
                 status_options.insert(0, current_status)
 
-            c1, c2, c3 = st.columns([1, 1.2, 1])
-            with c1:
+            u1, u2, u3 = st.columns([1, 1.2, 1])
+            with u1:
                 new_status = st.selectbox(
                     "Status",
                     status_options,
                     index=status_options.index(current_status),
                     key=f"status_plan_{plan_id}",
                 )
-            with c2:
+            with u2:
                 new_responsible = st.text_input(
                     "Responsável",
                     value=str(row.get("responsible") or ""),
                     key=f"responsible_plan_{plan_id}",
                 )
-            with c3:
+            with u3:
                 default_deadline = pd.to_datetime(row.get("deadline")).date() if pd.notna(row.get("deadline")) else date.today()
                 new_deadline = st.date_input(
                     "Novo prazo",
@@ -1075,22 +1104,23 @@ def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
                     key=f"deadline_plan_{plan_id}",
                 )
 
-            suggested_note = (
-                str(row.get("notes") or "")
-                if str(row.get("notes") or "").strip()
-                else f"Ação sugerida: {action_text}\nEvidência esperada: {evidence_text}\nAcompanhamento: "
+            current_note = str(row.get("notes") or "").strip()
+            suggested_note = current_note if current_note else (
+                f"Ação sugerida: {action_text}\n"
+                f"Evidência esperada: {evidence_text}\n"
+                "Acompanhamento: "
             )
             new_notes = st.text_area(
                 "Comentário / acompanhamento",
                 value=suggested_note,
-                height=140,
+                height=130,
                 key=f"notes_plan_{plan_id}",
                 help="Registre o que foi combinado, evidências, justificativa de prazo e evolução do plano.",
             )
 
             requires_comment = new_status == "Reprogramado" or new_deadline != default_deadline
             if requires_comment:
-                st.markdown('<div class="charth-plan-footer-note">Prazo ou status reprogramado: registre uma justificativa clara no comentário.</div>', unsafe_allow_html=True)
+                st.warning("Prazo ou status reprogramado: registre uma justificativa clara no comentário.")
 
             if st.button("Salvar alteração deste plano", use_container_width=True, key=f"save_plan_{plan_id}"):
                 if requires_comment and not new_notes.strip():
@@ -1099,10 +1129,8 @@ def _render_editable_action_plan(row: pd.Series, user: dict) -> None:
                     update_action_plan(plan_id, new_status, new_responsible, new_deadline.isoformat(), new_notes)
                     st.success(f"Plano #{plan_id} atualizado com sucesso.")
                     st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
         else:
-            st.markdown('<div class="charth-plan-footer-note">Gestoras visualizam os planos. Alteração de status, prazo e conclusão fica com a supervisora/admin.</div>', unsafe_allow_html=True)
-
+            st.caption("Gestoras visualizam os planos. Alteração de status, prazo e conclusão fica com a supervisora/admin.")
 
 def action_plans_page(user: dict) -> None:
     _render_history_css()
